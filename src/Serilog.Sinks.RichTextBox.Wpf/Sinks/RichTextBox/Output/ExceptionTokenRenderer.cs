@@ -41,7 +41,14 @@ namespace Serilog.Sinks.RichTextBox.Output
                 return;
             }
 
-            var lines = new StringReader(logEvent.Exception.ToString());
+            var logContent = logEvent.Exception.Message;
+            try
+            {
+                logContent = logEvent.Exception.ToString();
+            }
+            catch { }
+
+            var lines = new StringReader(logContent);
 
             string nextLine;
             while ((nextLine = lines.ReadLine()) != null)
