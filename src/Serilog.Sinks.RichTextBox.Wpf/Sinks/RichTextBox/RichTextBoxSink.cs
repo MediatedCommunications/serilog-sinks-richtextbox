@@ -15,16 +15,11 @@
 #endregion
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
 using System.Text;
-using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
-using System.Windows.Threading;
 using Serilog.Core;
 using Serilog.Events;
 using Serilog.Formatting;

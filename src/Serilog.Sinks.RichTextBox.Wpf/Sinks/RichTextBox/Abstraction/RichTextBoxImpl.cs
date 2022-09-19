@@ -21,7 +21,6 @@ using System.Threading.Tasks;
 using System.Windows.Documents;
 using System.Windows.Markup;
 using System.Windows.Threading;
-using Serilog.Debugging;
 using Serilog.Sinks.RichTextBox.Output;
 
 namespace Serilog.Sinks.RichTextBox.Abstraction
