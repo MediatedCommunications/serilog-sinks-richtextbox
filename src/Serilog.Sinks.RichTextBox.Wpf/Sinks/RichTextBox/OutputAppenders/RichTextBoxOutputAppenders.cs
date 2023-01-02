@@ -17,7 +17,7 @@
 
             var DefaultArgs = new ParagraphRichTextBoxOutputAppenderArgs() {
                 ScrollOnChange = true,
-                MaxItems = 1000,
+                MaxItems = 100,
             };
 
             Default = new ParagraphRichTextBoxOutputAppender(DefaultArgs) {

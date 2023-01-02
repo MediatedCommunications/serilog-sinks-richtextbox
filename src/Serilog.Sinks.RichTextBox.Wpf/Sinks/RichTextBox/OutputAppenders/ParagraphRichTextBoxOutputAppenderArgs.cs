@@ -4,7 +4,7 @@
     {
         public bool ScrollOnChange { get; init; }
         public bool Prepend { get; init; }
-        public long? MaxItems { get; init; }
+        public int? MaxItems { get; init; }
     }
 
 }

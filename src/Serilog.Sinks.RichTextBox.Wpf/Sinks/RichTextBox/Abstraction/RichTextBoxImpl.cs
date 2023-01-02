@@ -46,34 +46,8 @@ namespace Serilog.Sinks.RichTextBox.Abstraction
         {
             foreach (var richTextBox in richTextBoxes)
             {
-
-                var parsedParagraphs = new List<Paragraph>();
-
-                foreach (var xamlParagraphText in xamlParagraphTexts)
-                {
-
-                    try
-                    {
-                        var parsedParagraph = (Paragraph)XamlReader.Parse(xamlParagraphText);
-                        parsedParagraphs.Add(parsedParagraph);
-                    } catch(Exception ex)
-                    {
-                        var errorParagraph = new Paragraph() {
-                            Inlines = {
-                                new Run($"Error parsing `{xamlParagraphText}` to XAML: {ex.Message}")
-                            }
-                        };
-
-                        parsedParagraphs.Add(errorParagraph);
-                    }
-                    //} catch (XamlParseException ex)
-                    //{
-                    //    SelfLog.WriteLine($"Error parsing `{xamlParagraphText}` to XAML: {ex.Message}");
-                    //    throw;
-                    //}
-                }
-
-                _outputAppender.Append(richTextBox, parsedParagraphs);
+                _outputAppender.Append(richTextBox, xamlParagraphTexts);
+ 
             }
 
         }

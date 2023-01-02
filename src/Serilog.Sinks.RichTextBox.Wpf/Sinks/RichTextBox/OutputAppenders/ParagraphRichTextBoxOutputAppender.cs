@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows.Controls;
 using System.Windows.Documents;
 
@@ -13,6 +14,17 @@ namespace Serilog.Sinks.RichTextBox.Output
 
         }
 
+        public override void Append(System.Windows.Controls.RichTextBox richTextBox, List<string> Paragraph)
+        {
+            var Text = Paragraph;
+
+            if (Args.MaxItems is { } MaxItems && Text.Count > MaxItems) {
+                var Skip = Paragraph.Count - MaxItems;
+                Text = Text.Skip(Skip).ToList();
+            }
+
+            base.Append(richTextBox, Text);
+        }
 
         private void Step1(System.Windows.Controls.RichTextBox richTextBox, FlowDocument document, List<Paragraph> paragraphs) {
             foreach (var paragraph in paragraphs) {
@@ -35,31 +47,63 @@ namespace Serilog.Sinks.RichTextBox.Output
         }
 
         private void Step3(System.Windows.Controls.RichTextBox richTextBox, FlowDocument document, List<Paragraph> paragraphs) {
-            if (Args.MaxItems is { } Trim && Trim > 0) {
-                while (document.Blocks.Count > Trim) {
+
+            {
+                if (Args.MaxItems is { } MaxItems && MaxItems > 0) {
                     if (Args.Prepend) {
-                        document.Blocks.Remove(document.Blocks.LastBlock);
+                        var FirstBlock = document.Blocks.Skip(MaxItems).FirstOrDefault();
+                        if (FirstBlock is { }) {
+                            var TR = new TextRange(FirstBlock.ContentStart, document.Blocks.LastBlock.ContentEnd);
+                            TR.Text = string.Empty;
+                        }
                     }
                     else {
-                        document.Blocks.Remove(document.Blocks.FirstBlock);
+                        var Skip = document.Blocks.Count - MaxItems;
+                        var LastBlock = document.Blocks.Skip(Skip).FirstOrDefault();
+                        if (LastBlock is { }) {
+                            var TR = new TextRange(document.Blocks.FirstBlock.ContentStart, LastBlock.ContentEnd);
+                            TR.Text = string.Empty;
+                        }
+
                     }
                 }
             }
+
+            {
+                if (Args.MaxItems is { } MaxItems && MaxItems > 0) {
+                    while (document.Blocks.Count > MaxItems) {
+                        if (Args.Prepend) {
+                            document.Blocks.Remove(document.Blocks.LastBlock);
+                        }
+                        else {
+                            document.Blocks.Remove(document.Blocks.FirstBlock);
+                        }
+                    }
+                }
+            }
+
         }
 
         private void Step4(System.Windows.Controls.RichTextBox richTextBox, FlowDocument document, List<Paragraph> paragraphs) {
-            if (Args.ScrollOnChange) {
-                if (Args.Prepend) {
-                    richTextBox.ScrollToHome();
+            try {
+                if (Args.ScrollOnChange) {
+                    if (Args.Prepend) {
+                        richTextBox.ScrollToHome();
+                    }
+                    else {
+                        richTextBox.ScrollToEnd();
+                    }
                 }
-                else {
-                    richTextBox.ScrollToEnd();
-                }
+            } catch {
+                
             }
         }
 
         protected override void Append(System.Windows.Controls.RichTextBox richTextBox, FlowDocument document, List<Paragraph> paragraphs)
         {
+
+            richTextBox.BeginChange();
+            
             {
                 Step1(richTextBox, document, paragraphs);
             }
@@ -76,6 +120,7 @@ namespace Serilog.Sinks.RichTextBox.Output
                 Step4(richTextBox, document, paragraphs);
             }
 
+            richTextBox.EndChange();
         }
 
     }

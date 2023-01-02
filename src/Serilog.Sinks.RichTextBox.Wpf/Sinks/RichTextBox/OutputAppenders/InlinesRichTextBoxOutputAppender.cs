@@ -11,6 +11,8 @@ namespace Serilog.Sinks.RichTextBox.Output
 
         }
 
+
+
         protected override void Append(System.Windows.Controls.RichTextBox richTextBox, FlowDocument document, List<Paragraph> paragraphs)
         {
             var inlines = (
