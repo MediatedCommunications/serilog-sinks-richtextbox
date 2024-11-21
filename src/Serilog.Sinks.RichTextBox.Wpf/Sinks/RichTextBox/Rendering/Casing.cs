@@ -27,8 +27,7 @@ namespace Serilog.Sinks.RichTextBox.Rendering
         /// <returns>The provided <paramref name="value"/> with formatting applied.</returns>
         public static string Format(string value, string format = null)
         {
-            return format switch
-            {
+            return format switch {
                 "u" => value.ToUpperInvariant(),
                 "w" => value.ToLowerInvariant(),
                 _ => value

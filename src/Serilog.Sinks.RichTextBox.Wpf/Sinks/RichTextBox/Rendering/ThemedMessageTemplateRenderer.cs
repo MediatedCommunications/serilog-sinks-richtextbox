@@ -141,7 +141,7 @@ namespace Serilog.Sinks.RichTextBox.Rendering
 
         private int RenderValue(RichTextBoxTheme theme, ThemedValueFormatter valueFormatter, LogEventPropertyValue propertyValue, TextWriter output, string format)
         {
-            if (_isLiteral && propertyValue is ScalarValue {Value: string} sv)
+            if (_isLiteral && propertyValue is ScalarValue { Value: string } sv)
             {
                 var count = 0;
                 using (theme.Apply(output, RichTextBoxThemeStyle.String, ref count))

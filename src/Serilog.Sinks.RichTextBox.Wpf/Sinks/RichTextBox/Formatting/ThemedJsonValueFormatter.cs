@@ -251,7 +251,7 @@ namespace Serilog.Sinks.RichTextBox.Formatting
                 {
                     using (ApplyStyle(output, RichTextBoxThemeStyle.Number, ref count))
                     {
-                        output.Write(((IFormattable) value).ToString(null, CultureInfo.InvariantCulture));
+                        output.Write(((IFormattable)value).ToString(null, CultureInfo.InvariantCulture));
                     }
 
                     return count;
@@ -317,7 +317,7 @@ namespace Serilog.Sinks.RichTextBox.Formatting
                     using (ApplyStyle(output, RichTextBoxThemeStyle.Scalar, ref count))
                     {
                         output.Write('\"');
-                        output.Write(((IFormattable) value).ToString("O", CultureInfo.InvariantCulture));
+                        output.Write(((IFormattable)value).ToString("O", CultureInfo.InvariantCulture));
                         output.Write('\"');
                     }
 

@@ -88,12 +88,13 @@ namespace Serilog.Sinks.RichTextBox
                         xamlParagraphMessages.Add(xamlParagraphText);
                     }
 
-                    if(xamlParagraphMessages.Count > 1)
+                    if (xamlParagraphMessages.Count > 1)
                     {
 
                     }
 
-                    if (xamlParagraphMessages.Count > 0) {
+                    if (xamlParagraphMessages.Count > 0)
+                    {
 
                         await _richTextBox.WriteAsync(xamlParagraphMessages)
                             .ConfigureAwait(false)

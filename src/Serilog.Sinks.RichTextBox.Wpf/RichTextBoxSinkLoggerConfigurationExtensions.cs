@@ -64,7 +64,8 @@ namespace Serilog
             LoggingLevelSwitch levelSwitch = null,
             RichTextBoxTheme theme = null,
             DispatcherPriority dispatcherPriority = DispatcherPriority.Background,
-            object syncRoot = null) {
+            object syncRoot = null)
+        {
 
             return RichTextBox(sinkConfiguration, richTextBoxControl, RichTextBoxOutputAppenders.Legacy, restrictedToMinimumLevel, outputTemplate, formatProvider, levelSwitch, theme, dispatcherPriority, syncRoot);
         }
@@ -102,7 +103,7 @@ namespace Serilog
             DispatcherPriority dispatcherPriority = DispatcherPriority.Background,
             object syncRoot = null)
         {
-            return RichTextBox(sinkConfiguration, new[] {richTextBoxControl}, outputAppender, restrictedToMinimumLevel, outputTemplate, formatProvider,levelSwitch, theme, dispatcherPriority,syncRoot);
+            return RichTextBox(sinkConfiguration, [richTextBoxControl], outputAppender, restrictedToMinimumLevel, outputTemplate, formatProvider, levelSwitch, theme, dispatcherPriority, syncRoot);
         }
 
 
@@ -135,7 +136,7 @@ namespace Serilog
             string outputTemplate = _defaultRichTextBoxOutputTemplate,
             IFormatProvider formatProvider = null,
             LoggingLevelSwitch levelSwitch = null,
-            RichTextBoxTheme theme = null, 
+            RichTextBoxTheme theme = null,
             DispatcherPriority dispatcherPriority = DispatcherPriority.Background,
             object syncRoot = null)
         {

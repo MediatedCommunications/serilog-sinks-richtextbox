@@ -25,11 +25,11 @@ namespace Serilog.Sinks.RichTextBox.Themes
             lock (_syncLock)
             {
                 Black = "#000000";
-                DarkBlue =  "#000080";
+                DarkBlue = "#000080";
                 DarkGreen = "#008000";
                 DarkCyan = "#008080";
                 DarkRed = "#800000";
-                DarkMagenta  = "#800080";
+                DarkMagenta = "#800080";
                 DarkYellow = "#808000";
                 Gray = "#c0c0c0";
                 DarkGray = "#808080";
@@ -44,11 +44,11 @@ namespace Serilog.Sinks.RichTextBox.Themes
         }
 
         public static string Black { get; }
-        public static string DarkBlue { get; } 
+        public static string DarkBlue { get; }
         public static string DarkGreen { get; }
         public static string DarkCyan { get; }
         public static string DarkRed { get; }
-        public static string DarkMagenta  { get; }
+        public static string DarkMagenta { get; }
         public static string DarkYellow { get; }
         public static string Gray { get; }
         public static string DarkGray { get; }

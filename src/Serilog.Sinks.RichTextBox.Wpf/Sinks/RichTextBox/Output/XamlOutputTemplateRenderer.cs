@@ -47,7 +47,7 @@ namespace Serilog.Sinks.RichTextBox.Output
                     continue;
                 }
 
-                var pt = (PropertyToken) token;
+                var pt = (PropertyToken)token;
 
                 switch (pt.PropertyName)
                 {

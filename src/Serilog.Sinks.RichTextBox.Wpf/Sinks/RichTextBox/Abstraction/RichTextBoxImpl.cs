@@ -29,7 +29,7 @@ namespace Serilog.Sinks.RichTextBox.Abstraction
         private readonly System.Windows.Controls.RichTextBox[] _richTextBoxes;
         private readonly ILookup<Dispatcher, System.Windows.Controls.RichTextBox> _richTextBoxesByDispatcher;
         private readonly IRichTextBoxOutputAppender _outputAppender;
-        
+
 
         public RichTextBoxImpl(DispatcherPriority priority, IRichTextBoxOutputAppender outputAppender, params System.Windows.Controls.RichTextBox[] richTextBoxes)
         {
@@ -45,7 +45,7 @@ namespace Serilog.Sinks.RichTextBox.Abstraction
             foreach (var richTextBox in richTextBoxes)
             {
                 _outputAppender.Append(richTextBox, xamlParagraphTexts);
- 
+
             }
 
         }

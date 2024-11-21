@@ -22,8 +22,7 @@ namespace Serilog.Sinks.RichTextBox.Themes
     {
         public static RichTextBoxConsoleTheme Literate { get; } = new RichTextBoxConsoleTheme
         (
-            new Dictionary<RichTextBoxThemeStyle, RichTextBoxConsoleThemeStyle>
-            {
+            new Dictionary<RichTextBoxThemeStyle, RichTextBoxConsoleThemeStyle> {
                 [RichTextBoxThemeStyle.Text] = new RichTextBoxConsoleThemeStyle { Foreground = ConsoleHtmlColor.White },
                 [RichTextBoxThemeStyle.SecondaryText] = new RichTextBoxConsoleThemeStyle { Foreground = ConsoleHtmlColor.Gray },
                 [RichTextBoxThemeStyle.TertiaryText] = new RichTextBoxConsoleThemeStyle { Foreground = ConsoleHtmlColor.DarkGray },
@@ -45,8 +44,7 @@ namespace Serilog.Sinks.RichTextBox.Themes
 
         public static RichTextBoxConsoleTheme Grayscale { get; } = new RichTextBoxConsoleTheme
         (
-            new Dictionary<RichTextBoxThemeStyle, RichTextBoxConsoleThemeStyle>
-            {
+            new Dictionary<RichTextBoxThemeStyle, RichTextBoxConsoleThemeStyle> {
                 [RichTextBoxThemeStyle.Text] = new RichTextBoxConsoleThemeStyle { Foreground = ConsoleHtmlColor.White },
                 [RichTextBoxThemeStyle.SecondaryText] = new RichTextBoxConsoleThemeStyle { Foreground = ConsoleHtmlColor.Gray },
                 [RichTextBoxThemeStyle.TertiaryText] = new RichTextBoxConsoleThemeStyle { Foreground = ConsoleHtmlColor.DarkGray },
@@ -68,8 +66,7 @@ namespace Serilog.Sinks.RichTextBox.Themes
 
         public static RichTextBoxConsoleTheme Colored { get; } = new RichTextBoxConsoleTheme
         (
-            new Dictionary<RichTextBoxThemeStyle, RichTextBoxConsoleThemeStyle>
-            {
+            new Dictionary<RichTextBoxThemeStyle, RichTextBoxConsoleThemeStyle> {
                 [RichTextBoxThemeStyle.Text] = new RichTextBoxConsoleThemeStyle { Foreground = ConsoleHtmlColor.Gray },
                 [RichTextBoxThemeStyle.SecondaryText] = new RichTextBoxConsoleThemeStyle { Foreground = ConsoleHtmlColor.DarkGray },
                 [RichTextBoxThemeStyle.TertiaryText] = new RichTextBoxConsoleThemeStyle { Foreground = ConsoleHtmlColor.DarkGray },
