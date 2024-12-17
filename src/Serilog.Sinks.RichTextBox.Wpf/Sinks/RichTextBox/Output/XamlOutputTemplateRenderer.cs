@@ -75,7 +75,7 @@ namespace Serilog.Sinks.RichTextBox.Output
                 }
             }
 
-            _renderers = renderers.ToArray();
+            _renderers = [.. renderers];
         }
 
         public void Format(LogEvent logEvent, TextWriter output)
