@@ -22,7 +22,7 @@ namespace Serilog.Sinks.RichTextBox.Output
         protected abstract void Append(System.Windows.Controls.RichTextBox richTextBox, FlowDocument document, List<Paragraph> paragraphs);
 
 
-        protected List<Paragraph> Parse(List<string> xamlParagraphTexts)
+        protected static List<Paragraph> Parse(List<string> xamlParagraphTexts)
         {
             var ret = new List<Paragraph>();
 
