@@ -60,6 +60,9 @@ namespace Serilog.Sinks.RichTextBox
 
             var moredata = true;
 
+            var MaxDelay = TimeSpan.FromMilliseconds(100);
+            var UnitDelay = TimeSpan.FromMilliseconds(10);
+
             while (moredata)
             {
                 moredata = await _messageReader.WaitToReadAsync()
@@ -68,24 +71,42 @@ namespace Serilog.Sinks.RichTextBox
 
                 if (moredata)
                 {
-                    await Task.Delay(100)
-                        .ConfigureAwait(false)
-                        ;
 
                     var xamlParagraphMessages = new List<string>();
 
-                    while (_messageReader.TryRead(out var logEvent))
-                    {
-                        var sb = new StringBuilder();
-                        sb.Append($"<Paragraph xmlns =\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\" xml:space=\"preserve\">");
 
-                        StringWriter writer = new();
-                        _formatter.Format(logEvent, writer);
-                        sb.Append(writer.ToString());
-                        sb.Append("</Paragraph>");
 
-                        var xamlParagraphText = sb.ToString();
-                        xamlParagraphMessages.Add(xamlParagraphText);
+                    var MoreFound = true;
+                    var TotalDelay = TimeSpan.Zero;
+
+                    while (MoreFound && TotalDelay < MaxDelay){
+                        MoreFound = false;
+
+                        while (_messageReader.TryRead(out var logEvent))
+                        {
+                            var sb = new StringBuilder();
+                            sb.Append($"<Paragraph xmlns =\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\" xml:space=\"preserve\">");
+
+                            StringWriter writer = new();
+                            _formatter.Format(logEvent, writer);
+                            sb.Append(writer.ToString());
+                            sb.Append("</Paragraph>");
+
+                            var xamlParagraphText = sb.ToString();
+                            xamlParagraphMessages.Add(xamlParagraphText);
+                            MoreFound = true;
+                        }
+
+                        if (MoreFound)
+                        {
+                            await Task.Delay(UnitDelay)
+                                .ConfigureAwait(false)
+                                ;
+
+                            TotalDelay += UnitDelay;
+
+                        }
+
                     }
 
                     if (xamlParagraphMessages.Count > 1)
