@@ -71,7 +71,7 @@
   <ItemGroup>
     <PackageReference Include="Serilog" Version="4.3.0" />
 
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.102" PrivateAssets="All" />
 
     <PackageReference Include="System.Threading.Channels" Version="10.0.2" />
   </ItemGroup>
