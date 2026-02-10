@@ -71,9 +71,9 @@
   <ItemGroup>
     <PackageReference Include="Serilog" Version="4.3.0" />
 
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.102" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.103" PrivateAssets="All" />
 
-    <PackageReference Include="System.Threading.Channels" Version="10.0.2" />
+    <PackageReference Include="System.Threading.Channels" Version="10.0.3" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net462' ">
