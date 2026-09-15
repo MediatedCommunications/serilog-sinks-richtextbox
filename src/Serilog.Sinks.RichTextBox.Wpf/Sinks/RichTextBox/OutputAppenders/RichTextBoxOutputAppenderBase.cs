@@ -8,15 +8,15 @@ namespace Serilog.Sinks.RichTextBox.Output
     public abstract class RichTextBoxOutputAppenderBase : IRichTextBoxOutputAppender
     {
 
-        public virtual void Append(System.Windows.Controls.RichTextBox richTextBox, List<string> Paragraph)
+        public virtual void Append(System.Windows.Controls.RichTextBox RichTextBox, List<string> Paragraph)
         {
-            var flowDocument = richTextBox.Document ??= new FlowDocument();
+            var flowDocument = RichTextBox.Document ??= new FlowDocument();
 
             var SW = System.Diagnostics.Stopwatch.StartNew();
             var paragraphs = Parse(Paragraph);
             SW.Stop();
 
-            Append(richTextBox, flowDocument, paragraphs);
+            Append(RichTextBox, flowDocument, paragraphs);
         }
 
         protected abstract void Append(System.Windows.Controls.RichTextBox richTextBox, FlowDocument document, List<Paragraph> paragraphs);
