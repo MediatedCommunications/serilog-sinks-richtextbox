@@ -26,25 +26,27 @@ namespace Serilog.Sinks.RichTextBox.Abstraction
     internal class RichTextBoxImpl : IRichTextBox
     {
         private readonly DispatcherPriority _priority;
-        private readonly System.Windows.Controls.RichTextBox[] _richTextBoxes;
-        private readonly ILookup<Dispatcher, System.Windows.Controls.RichTextBox> _richTextBoxesByDispatcher;
+        private readonly System.Windows.Documents.FlowDocument[] _richTextBoxes;
+        private readonly ILookup<Dispatcher, System.Windows.Documents.FlowDocument> _richTextBoxesByDispatcher;
         private readonly IRichTextBoxOutputAppender _outputAppender;
 
 
-        public RichTextBoxImpl(DispatcherPriority priority, IRichTextBoxOutputAppender outputAppender, params System.Windows.Controls.RichTextBox[] richTextBoxes)
+        public RichTextBoxImpl(DispatcherPriority priority, IRichTextBoxOutputAppender outputAppender, params System.Windows.Documents.FlowDocument[] documents)
         {
             _priority = priority;
-            _richTextBoxes = richTextBoxes?.ToArray() ?? throw new ArgumentNullException(nameof(richTextBoxes));
+            _richTextBoxes = documents?.ToArray() ?? throw new ArgumentNullException(nameof(documents));
             _outputAppender = outputAppender ?? throw new ArgumentNullException(nameof(outputAppender));
 
             _richTextBoxesByDispatcher = _richTextBoxes.ToLookup(x => x.Dispatcher);
         }
 
-        private void Write(List<string> xamlParagraphTexts, IEnumerable<System.Windows.Controls.RichTextBox> richTextBoxes)
+        private void Write(List<string> xamlParagraphTexts, IEnumerable<System.Windows.Documents.FlowDocument> documents)
         {
-            foreach (var richTextBox in richTextBoxes)
+            foreach (var document in documents)
             {
-                _outputAppender.Append(richTextBox, xamlParagraphTexts);
+                var richTextBox = document.FindLogicalAncestor<System.Windows.Controls.RichTextBox>();
+
+                _outputAppender.Append(richTextBox, document, xamlParagraphTexts);
 
             }
 

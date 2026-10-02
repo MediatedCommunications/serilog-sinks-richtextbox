@@ -13,7 +13,7 @@ namespace Serilog.Sinks.RichTextBox.Output
 
         }
 
-        public override void Append(System.Windows.Controls.RichTextBox richTextBox, List<string> Paragraph)
+        public override void Append(System.Windows.Controls.RichTextBox richTextBox, FlowDocument document, List<string> Paragraph)
         {
             var Text = Paragraph;
 
@@ -23,7 +23,7 @@ namespace Serilog.Sinks.RichTextBox.Output
                 Text = Text.Skip(Skip).ToList();
             }
 
-            base.Append(richTextBox, Text);
+            base.Append(richTextBox, document, Text);
         }
 
         private void Step1(System.Windows.Controls.RichTextBox richTextBox, FlowDocument document, List<Paragraph> paragraphs)
@@ -56,6 +56,8 @@ namespace Serilog.Sinks.RichTextBox.Output
         private void Step3(System.Windows.Controls.RichTextBox richTextBox, FlowDocument document, List<Paragraph> paragraphs)
         {
 
+            /*
+            //I think this is old code we don't need.
             {
                 if (Args.MaxItems is { } MaxItems && MaxItems > 0)
                 {
@@ -81,6 +83,7 @@ namespace Serilog.Sinks.RichTextBox.Output
                     }
                 }
             }
+            */
 
             {
                 if (Args.MaxItems is { } MaxItems && MaxItems > 0)
@@ -109,11 +112,11 @@ namespace Serilog.Sinks.RichTextBox.Output
                 {
                     if (Args.Prepend)
                     {
-                        richTextBox.ScrollToHome();
+                        richTextBox?.ScrollToHome();
                     }
                     else
                     {
-                        richTextBox.ScrollToEnd();
+                        richTextBox?.ScrollToEnd();
                     }
                 }
             } catch
@@ -125,7 +128,7 @@ namespace Serilog.Sinks.RichTextBox.Output
         protected override void Append(System.Windows.Controls.RichTextBox richTextBox, FlowDocument document, List<Paragraph> paragraphs)
         {
 
-            richTextBox.BeginChange();
+            richTextBox?.BeginChange();
 
             {
                 Step1(richTextBox, document, paragraphs);
@@ -143,7 +146,7 @@ namespace Serilog.Sinks.RichTextBox.Output
                 Step4(richTextBox, document, paragraphs);
             }
 
-            richTextBox.EndChange();
+            richTextBox?.EndChange();
         }
 
     }

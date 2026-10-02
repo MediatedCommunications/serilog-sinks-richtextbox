@@ -15,7 +15,10 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Threading;
 using Serilog.Configuration;
 using Serilog.Core;
@@ -67,7 +70,14 @@ namespace Serilog
             object syncRoot = null)
         {
 
-            return RichTextBox(sinkConfiguration, richTextBoxControl, RichTextBoxOutputAppenders.Legacy, restrictedToMinimumLevel, outputTemplate, formatProvider, levelSwitch, theme, dispatcherPriority, syncRoot);
+            if(richTextBoxControl is { } && richTextBoxControl.Document is null)
+            {
+                richTextBoxControl.Document = new();
+            }
+
+            var document = richTextBoxControl?.Document;
+
+            return RichTextBox(sinkConfiguration, document, RichTextBoxOutputAppenders.Legacy, restrictedToMinimumLevel, outputTemplate, formatProvider, levelSwitch, theme, dispatcherPriority, syncRoot);
         }
 
         /// <summary>
@@ -93,7 +103,7 @@ namespace Serilog
         /// <exception cref="ArgumentNullException">When <paramref name="outputTemplate"/> is <code>null</code></exception>
         public static LoggerConfiguration RichTextBox(
             this LoggerSinkConfiguration sinkConfiguration,
-            RichTextBox richTextBoxControl,
+            FlowDocument document,
             IRichTextBoxOutputAppender outputAppender,
             LogEventLevel restrictedToMinimumLevel = LevelAlias.Minimum,
             string outputTemplate = _defaultRichTextBoxOutputTemplate,
@@ -103,7 +113,7 @@ namespace Serilog
             DispatcherPriority dispatcherPriority = DispatcherPriority.Background,
             object syncRoot = null)
         {
-            return RichTextBox(sinkConfiguration, [richTextBoxControl], outputAppender, restrictedToMinimumLevel, outputTemplate, formatProvider, levelSwitch, theme, dispatcherPriority, syncRoot);
+            return RichTextBox(sinkConfiguration, [document], outputAppender, restrictedToMinimumLevel, outputTemplate, formatProvider, levelSwitch, theme, dispatcherPriority, syncRoot);
         }
 
 
@@ -130,7 +140,7 @@ namespace Serilog
         /// <exception cref="ArgumentNullException">When <paramref name="outputTemplate"/> is <code>null</code></exception>
         public static LoggerConfiguration RichTextBox(
             this LoggerSinkConfiguration sinkConfiguration,
-            RichTextBox[] richTextBoxControls,
+            IEnumerable<FlowDocument> documents,
             IRichTextBoxOutputAppender outputAppender,
             LogEventLevel restrictedToMinimumLevel = LevelAlias.Minimum,
             string outputTemplate = _defaultRichTextBoxOutputTemplate,
@@ -145,9 +155,9 @@ namespace Serilog
                 throw new ArgumentNullException(nameof(sinkConfiguration));
             }
 
-            if (richTextBoxControls is null)
+            if (documents is null)
             {
-                throw new ArgumentNullException(nameof(richTextBoxControls));
+                throw new ArgumentNullException(nameof(documents));
             }
 
             if (outputTemplate is null)
@@ -159,7 +169,8 @@ namespace Serilog
 
             var formatter = new XamlOutputTemplateRenderer(appliedTheme, outputTemplate, formatProvider);
 
-            var richTextBox = new RichTextBoxImpl(dispatcherPriority, outputAppender, richTextBoxControls);
+
+            var richTextBox = new RichTextBoxImpl(dispatcherPriority, outputAppender, [.. documents]);
 
             var richTextBoxSink = new RichTextBoxSink(richTextBox, formatter);
 

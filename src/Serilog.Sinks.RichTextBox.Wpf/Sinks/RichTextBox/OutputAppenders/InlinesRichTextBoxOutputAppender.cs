@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Windows.Controls;
 using System.Windows.Documents;
 
 namespace Serilog.Sinks.RichTextBox.Output
@@ -35,7 +36,7 @@ namespace Serilog.Sinks.RichTextBox.Output
 
             if (Args.ScrollOnChange)
             {
-                richTextBox.ScrollToEnd();
+                richTextBox?.ScrollToEnd();
             }
 
         }
