@@ -57,6 +57,7 @@ namespace Serilog
         /// the lock is held.</param>
         /// <returns>Configuration object allowing method chaining.</returns>
         /// <exception cref="ArgumentNullException">When <paramref name="sinkConfiguration"/> is <code>null</code></exception>
+        /// <exception cref="ArgumentNullException">When <paramref name="richTextBoxControl"/> is <code>null</code></exception>
         /// <exception cref="ArgumentNullException">When <paramref name="outputTemplate"/> is <code>null</code></exception>
         public static LoggerConfiguration RichTextBox(
             this LoggerSinkConfiguration sinkConfiguration,
@@ -69,18 +70,19 @@ namespace Serilog
             DispatcherPriority dispatcherPriority = DispatcherPriority.Background,
             object syncRoot = null)
         {
-
-            if (richTextBoxControl is { })
+            if (richTextBoxControl is null)
             {
-                if (richTextBoxControl.Document is null)
-                {
-                    richTextBoxControl.Document = new();
-                }
-
-                richTextBoxControl.IsUndoEnabled = false;
+                throw new ArgumentNullException(nameof(richTextBoxControl));
             }
 
-            var document = richTextBoxControl?.Document;
+            if (richTextBoxControl.Document is null)
+            {
+                richTextBoxControl.Document = new();
+            }
+
+            richTextBoxControl.IsUndoEnabled = false;
+
+            var document = richTextBoxControl.Document;
 
             return RichTextBox(sinkConfiguration, document, RichTextBoxOutputAppenders.Default, restrictedToMinimumLevel, outputTemplate, formatProvider, levelSwitch, theme, dispatcherPriority, syncRoot);
         }
@@ -118,6 +120,11 @@ namespace Serilog
             DispatcherPriority dispatcherPriority = DispatcherPriority.Background,
             object syncRoot = null)
         {
+            if (document is null)
+            {
+                throw new ArgumentNullException(nameof(document));
+            }
+
             return RichTextBox(sinkConfiguration, [document], outputAppender, restrictedToMinimumLevel, outputTemplate, formatProvider, levelSwitch, theme, dispatcherPriority, syncRoot);
         }
 

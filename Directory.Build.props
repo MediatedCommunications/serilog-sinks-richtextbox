@@ -8,4 +8,8 @@
     <SourceRoot Include="$(MSBuildThisFileDirectory)/"/>
   </ItemGroup>
 
+  <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="All" />
+  </ItemGroup>
+
 </Project>

@@ -1,4 +1,4 @@
-﻿#region Copyright 2021 C. Augusto Proiete & Contributors
+#region Copyright 2021 C. Augusto Proiete & Contributors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,15 +18,16 @@ using Serilog.Events;
 using Serilog.Sinks.RichTextBox.Formatting;
 using Serilog.Sinks.RichTextBox.Rendering;
 using Serilog.Sinks.RichTextBox.Themes;
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Serilog.Sinks.RichTextBox.Wpf.Tests.Formatting
 {
+    [TestClass]
     public class ThemedDisplayValueFormatterTests
     {
-        [Theory]
-        [InlineData("Hello", null, "\"Hello\"")]
-        [InlineData("Hello", "l", "Hello")]
+        [TestMethod]
+        [DataRow("Hello", null, "\"Hello\"")]
+        [DataRow("Hello", "l", "Hello")]
         public void StringFormattingIsApplied(string value, string format, string expected)
         {
             var formatter = new ThemedDisplayValueFormatter(RichTextBoxTheme.None, null);
@@ -36,7 +37,7 @@ namespace Serilog.Sinks.RichTextBox.Wpf.Tests.Formatting
 
             var actual = sw.ToString();
 
-            Assert.Equal(expected, actual);
+            Assert.AreEqual(expected, actual);
         }
     }
 }

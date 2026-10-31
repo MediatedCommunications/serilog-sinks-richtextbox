@@ -49,14 +49,37 @@ namespace Serilog.Sinks.RichTextBox.Output
 
             var lines = new StringReader(logContent);
 
+            string pending = null;
             string nextLine;
             while ((nextLine = lines.ReadLine()) != null)
             {
-                var style = nextLine.StartsWith(_stackFrameLinePrefix) ? RichTextBoxThemeStyle.SecondaryText : RichTextBoxThemeStyle.Text;
-
-                using (_theme.Apply(output, style))
+                if (pending != null)
                 {
-                    output.WriteLine(nextLine);
+                    WriteExceptionLine(output, pending, includeNewline: true);
+                }
+
+                pending = nextLine;
+            }
+
+            if (pending != null)
+            {
+                WriteExceptionLine(output, pending, includeNewline: false);
+            }
+        }
+
+        private void WriteExceptionLine(RichTextLineWriter output, string line, bool includeNewline)
+        {
+            var style = line.StartsWith(_stackFrameLinePrefix) ? RichTextBoxThemeStyle.SecondaryText : RichTextBoxThemeStyle.Text;
+
+            using (_theme.Apply(output, style))
+            {
+                if (includeNewline)
+                {
+                    output.WriteLine(line);
+                }
+                else
+                {
+                    output.Write(line);
                 }
             }
         }

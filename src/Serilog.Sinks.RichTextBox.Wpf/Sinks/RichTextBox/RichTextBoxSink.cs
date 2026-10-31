@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
+using System.Windows.Threading;
 using Serilog.Core;
 using Serilog.Debugging;
 using Serilog.Events;
@@ -38,6 +39,9 @@ namespace Serilog.Sinks.RichTextBox
 
         private readonly ChannelReader<LogEvent> _messageReader;
         private readonly ChannelWriter<LogEvent> _messageWriter;
+        private readonly CancellationTokenSource _shutdown = new();
+        private readonly Task _consumer;
+        private int _disposeOnce;
 
         public RichTextBoxSink(IRichTextBox richTextBox, RichTextOutputTemplateRenderer formatter, int? retainedLineLimit = null)
         {
@@ -62,35 +66,68 @@ namespace Serilog.Sinks.RichTextBox
             _messageReader = chan.Reader;
             _messageWriter = chan.Writer;
 
-            Task.Run(ProcessMessages);
+            _consumer = Task.Run(ProcessMessages);
         }
 
         private async Task ProcessMessages()
         {
+            List<RichTextLine> pending = null;
+            var announcedFailure = false;
             try
             {
-                while (await _messageReader.WaitToReadAsync().ConfigureAwait(false))
+                while (true)
                 {
-                    var batch = new List<RichTextLine>(MaxLinesPerTurn);
-                    FillBatch(batch);
-                    if (batch.Count < MaxLinesPerTurn && !_messageReader.Completion.IsCompleted)
+                    if (pending == null)
                     {
-                        await CoalesceAsync(batch).ConfigureAwait(false);
-                    }
+                        if (!await _messageReader.WaitToReadAsync().ConfigureAwait(false))
+                        {
+                            break;
+                        }
 
-                    if (batch.Count == 0)
-                    {
-                        continue;
+                        var batch = new List<RichTextLine>(MaxLinesPerTurn);
+                        FillBatch(batch);
+                        if (batch.Count < MaxLinesPerTurn && !_messageReader.Completion.IsCompleted)
+                        {
+                            await CoalesceAsync(batch).ConfigureAwait(false);
+                        }
+
+                        if (batch.Count == 0)
+                        {
+                            continue;
+                        }
+
+                        pending = batch;
                     }
 
                     try
                     {
-                        await _richTextBox.WriteAsync(batch).ConfigureAwait(false);
+                        await _richTextBox.WriteAsync(pending).ConfigureAwait(false);
+                        pending = null;
+                        announcedFailure = false;
                     }
                     catch (Exception ex)
                     {
-                        SelfLog.WriteLine("RichTextBox sink write failed: " + ex);
-                        await Task.Delay(CoalesceWindow).ConfigureAwait(false);
+                        if (!announcedFailure)
+                        {
+                            SelfLog.WriteLine("RichTextBox sink write failed: " + ex);
+                            announcedFailure = true;
+                        }
+
+                        if (_shutdown.IsCancellationRequested)
+                        {
+                            SelfLog.WriteLine("RichTextBox sink dropped " + pending.Count + " lines during shutdown.");
+                            break;
+                        }
+
+                        try
+                        {
+                            await Task.Delay(CoalesceWindow, _shutdown.Token).ConfigureAwait(false);
+                        }
+                        catch (OperationCanceledException)
+                        {
+                            SelfLog.WriteLine("RichTextBox sink dropped " + pending.Count + " lines during shutdown.");
+                            break;
+                        }
                     }
                 }
             }
@@ -153,7 +190,57 @@ namespace Serilog.Sinks.RichTextBox
 
         public void Dispose()
         {
+            if (Interlocked.Exchange(ref _disposeOnce, 1) != 0)
+            {
+                return;
+            }
+
             _messageWriter.TryComplete();
+
+            var consumer = _consumer;
+            if (!consumer.IsCompleted)
+            {
+                if (_richTextBox.CheckAccess())
+                {
+                    PumpUntil(consumer, TimeSpan.FromSeconds(2));
+                }
+                else
+                {
+                    consumer.Wait(TimeSpan.FromSeconds(2));
+                }
+            }
+
+            if (!consumer.IsCompleted)
+            {
+                _shutdown.Cancel();
+                SelfLog.WriteLine("RichTextBox sink flush timed out.");
+            }
+        }
+
+        private static void PumpUntil(Task consumer, TimeSpan timeout)
+        {
+            var dispatcher = Dispatcher.CurrentDispatcher;
+            var frame = new DispatcherFrame();
+            var timer = new DispatcherTimer(DispatcherPriority.Send, dispatcher)
+            {
+                Interval = timeout,
+            };
+            timer.Tick += (_, _) =>
+            {
+                timer.Stop();
+                frame.Continue = false;
+            };
+            consumer.ContinueWith(
+                _ => dispatcher.BeginInvoke(new Action(() =>
+                {
+                    timer.Stop();
+                    frame.Continue = false;
+                })),
+                CancellationToken.None,
+                TaskContinuationOptions.None,
+                TaskScheduler.Default);
+            timer.Start();
+            Dispatcher.PushFrame(frame);
         }
     }
 }

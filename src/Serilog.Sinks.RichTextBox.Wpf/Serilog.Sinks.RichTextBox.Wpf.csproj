@@ -1,10 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net9.0-windows</TargetFrameworks>
-    <!--
-    <TargetFrameworks>net6.0-windows;net480</TargetFrameworks>
-    -->
+    <TargetFrameworks>net48;net10.0-windows</TargetFrameworks>
     <UseWPF>true</UseWPF>
     <RootNamespace>Serilog</RootNamespace>
 
@@ -48,16 +45,6 @@
     <RepositoryUrl>https://github.com/serilog-contrib/serilog-sinks-richtextbox.git</RepositoryUrl>
   </PropertyGroup>
 
-  <PropertyGroup>
-    <DisableImplicitFrameworkReferences Condition=" '$(TargetFramework)' == 'net462' ">true</DisableImplicitFrameworkReferences>
-  </PropertyGroup>
-
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net480' ">
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="Microsoft.CSharp" />
-  </ItemGroup>
-
   <ItemGroup>
     <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
       <_Parameter1>Serilog.Sinks.RichTextBox.Wpf.Tests, PublicKey=0024000004800000940000000602000000240000525341310004000001000100fb8d13fd344a1c6fe0fe83ef33c1080bf30690765bc6eb0df26ebfdf8f21670c64265b30db09f73a0dea5b3db4c9d18dbf6d5a25af5ce9016f281014d79dc3b4201ac646c451830fc7e61a2dfd633d34c39f87b81894191652df5ac63cc40c77f3542f702bda692e6e8a9158353df189007a49da0f3cfd55eb250066b19485ec</_Parameter1>
@@ -74,18 +61,6 @@
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.403" PrivateAssets="All" />
 
     <PackageReference Include="System.Threading.Channels" Version="10.0.14" />
-  </ItemGroup>
-
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net462' ">
-    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="All" />
-    <Reference Include="PresentationCore" />
-    <Reference Include="PresentationFramework" />
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Design" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Security" />
-    <Reference Include="WindowsBase" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,4 +1,4 @@
-﻿#region Copyright 2021 C. Augusto Proiete & Contributors
+#region Copyright 2021 C. Augusto Proiete & Contributors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,10 +20,11 @@ using Serilog.Events;
 using Serilog.Sinks.RichTextBox.Formatting;
 using Serilog.Sinks.RichTextBox.Rendering;
 using Serilog.Sinks.RichTextBox.Themes;
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Serilog.Sinks.RichTextBox.Wpf.Tests.Formatting
 {
+    [TestClass]
     public class ThemedJsonValueFormatterTests
     {
         private class TestThemedJsonValueFormatter : ThemedJsonValueFormatter
@@ -44,36 +45,36 @@ namespace Serilog.Sinks.RichTextBox.Wpf.Tests.Formatting
             }
         }
 
-        [Theory]
-        [InlineData(123, "123")]
-        [InlineData('c', "\"c\"")]
-        [InlineData("Hello, world!", "\"Hello, world!\"")]
-        [InlineData(true, "true")]
-        [InlineData("\\\"\t\r\n\f", "\"\\\\\\\"\\t\\r\\n\\f\"")]
-        [InlineData("\u0001", "\"\\u0001\"")]
-        [InlineData("a\nb", "\"a\\nb\"")]
-        [InlineData(null, "null")]
-        [InlineData("Hello, <>&\"' world!", "\"Hello, <>&\\\"' world!\"")]
+        [TestMethod]
+        [DataRow(123, "123")]
+        [DataRow('c', "\"c\"")]
+        [DataRow("Hello, world!", "\"Hello, world!\"")]
+        [DataRow(true, "true")]
+        [DataRow("\\\"\t\r\n\f", "\"\\\\\\\"\\t\\r\\n\\f\"")]
+        [DataRow("\u0001", "\"\\u0001\"")]
+        [DataRow("a\nb", "\"a\\nb\"")]
+        [DataRow(null, "null")]
+        [DataRow("Hello, <>&\"' world!", "\"Hello, <>&\\\"' world!\"")]
         public void JsonLiteralTypesAreFormatted(object value, string expectedJson)
         {
             var formatter = new TestThemedJsonValueFormatter();
-            Assert.Equal(expectedJson, formatter.Format(value));
+            Assert.AreEqual(expectedJson, formatter.Format(value));
         }
 
-        [Fact]
+        [TestMethod]
         public void DateTimesFormatAsIso8601()
         {
             JsonLiteralTypesAreFormatted(new DateTime(2016, 01, 01, 13, 13, 13, DateTimeKind.Utc),
                 "\"2016-01-01T13:13:13.0000000Z\"");
         }
 
-        [Fact]
+        [TestMethod]
         public void DoubleFormatsAsNumber()
         {
             JsonLiteralTypesAreFormatted(123.45, "123.45");
         }
 
-        [Fact]
+        [TestMethod]
         public void DoubleSpecialsFormatAsString()
         {
             JsonLiteralTypesAreFormatted(double.NaN, "\"NaN\"");
@@ -81,13 +82,13 @@ namespace Serilog.Sinks.RichTextBox.Wpf.Tests.Formatting
             JsonLiteralTypesAreFormatted(double.NegativeInfinity, "\"-Infinity\"");
         }
 
-        [Fact]
+        [TestMethod]
         public void FloatFormatsAsNumber()
         {
             JsonLiteralTypesAreFormatted(123.45f, "123.45");
         }
 
-        [Fact]
+        [TestMethod]
         public void FloatSpecialsFormatAsString()
         {
             JsonLiteralTypesAreFormatted(float.NaN, "\"NaN\"");
@@ -95,7 +96,7 @@ namespace Serilog.Sinks.RichTextBox.Wpf.Tests.Formatting
             JsonLiteralTypesAreFormatted(float.NegativeInfinity, "\"-Infinity\"");
         }
 
-        [Fact]
+        [TestMethod]
         public void DecimalFormatsAsNumber()
         {
             JsonLiteralTypesAreFormatted(123.45m, "123.45");
@@ -111,29 +112,29 @@ namespace Serilog.Sinks.RichTextBox.Wpf.Tests.Formatting
             return output.ToString();
         }
 
-        [Fact]
+        [TestMethod]
         public void ScalarPropertiesFormatAsLiteralValues()
         {
             var f = Format(new ScalarValue(123));
-            Assert.Equal("123", f);
+            Assert.AreEqual("123", f);
         }
 
-        [Fact]
+        [TestMethod]
         public void SequencePropertiesFormatAsArrayValue()
         {
             var f = Format(new SequenceValue(new[] { new ScalarValue(123), new ScalarValue(456) }));
-            Assert.Equal("[123, 456]", f);
+            Assert.AreEqual("[123, 456]", f);
         }
 
-        [Fact]
+        [TestMethod]
         public void StructuresFormatAsAnObject()
         {
             var structure = new StructureValue(new[] { new LogEventProperty("A", new ScalarValue(123)) }, "T");
             var f = Format(structure);
-            Assert.Equal("{\"A\": 123, \"$type\": \"T\"}", f);
+            Assert.AreEqual("{\"A\": 123, \"$type\": \"T\"}", f);
         }
 
-        [Fact]
+        [TestMethod]
         public void DictionaryWithScalarKeyFormatsAsAnObject()
         {
             var dict = new DictionaryValue(new Dictionary<ScalarValue, LogEventPropertyValue>
@@ -142,16 +143,16 @@ namespace Serilog.Sinks.RichTextBox.Wpf.Tests.Formatting
             });
 
             var f = Format(dict);
-            Assert.Equal("{\"12\": 345}", f);
+            Assert.AreEqual("{\"12\": 345}", f);
         }
 
-        [Fact]
+        [TestMethod]
         public void SequencesOfSequencesAreFormatted()
         {
             var s = new SequenceValue(new[] { new SequenceValue(new[] { new ScalarValue("Hello") }) });
 
             var f = Format(s);
-            Assert.Equal("[[\"Hello\"]]", f);
+            Assert.AreEqual("[[\"Hello\"]]", f);
         }
     }
 }

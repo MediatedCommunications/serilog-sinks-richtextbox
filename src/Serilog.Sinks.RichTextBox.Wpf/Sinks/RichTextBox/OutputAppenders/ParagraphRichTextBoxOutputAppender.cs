@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Windows.Documents;
 using Serilog.Sinks.RichTextBox.Rendering;
 
@@ -11,15 +12,38 @@ namespace Serilog.Sinks.RichTextBox.Output
         {
         }
 
+        private static readonly object _placeholderSentinel = new();
+
+        private readonly ConditionalWeakTable<FlowDocument, object> _droppedPlaceholder = new();
+
         internal int? RetainedLineLimit => Args.MaxItems is int max && max > 0 ? max : null;
 
         private static void StripTrailingNewlines(List<Paragraph> paragraphs)
         {
             foreach (var paragraph in paragraphs)
             {
-                if (paragraph.Inlines.LastInline is Run run && (run.Text == Environment.NewLine || run.Text == "\n"))
+                while (paragraph.Inlines.LastInline is Run run)
                 {
-                    paragraph.Inlines.Remove(run);
+                    var text = run.Text ?? string.Empty;
+                    var end = text.Length;
+                    while (end > 0 && (text[end - 1] == '\n' || text[end - 1] == '\r'))
+                    {
+                        end--;
+                    }
+
+                    if (end == text.Length)
+                    {
+                        break;
+                    }
+
+                    if (end == 0)
+                    {
+                        paragraph.Inlines.Remove(run);
+                        continue;
+                    }
+
+                    run.Text = text.Substring(0, end);
+                    break;
                 }
             }
         }
@@ -58,20 +82,7 @@ namespace Serilog.Sinks.RichTextBox.Output
                 return;
             }
 
-            try
-            {
-                if (Args.Prepend)
-                {
-                    richTextBox.ScrollToHome();
-                }
-                else
-                {
-                    richTextBox.ScrollToEnd();
-                }
-            }
-            catch
-            {
-            }
+            Follow(richTextBox);
         }
 
         private void ApplyBlocks(FlowDocument document, List<Paragraph> paragraphs)
@@ -142,13 +153,67 @@ namespace Serilog.Sinks.RichTextBox.Output
             return reversed;
         }
 
-        private static void DropLeadingPlaceholder(FlowDocument document)
+        private void DropLeadingPlaceholder(FlowDocument document)
         {
+            if (_droppedPlaceholder.TryGetValue(document, out _))
+            {
+                return;
+            }
+
+            _droppedPlaceholder.Add(document, _placeholderSentinel);
+
             if (document.Blocks.Count == 1 &&
                 document.Blocks.FirstBlock is Paragraph paragraph &&
                 paragraph.Inlines.Count == 0)
             {
                 document.Blocks.Clear();
+            }
+        }
+
+        private void Follow(System.Windows.Controls.RichTextBox richTextBox)
+        {
+            try
+            {
+                richTextBox.UpdateLayout();
+                if (richTextBox.ViewportHeight == 0 && richTextBox.ExtentHeight == 0)
+                {
+                    EventHandler onLayout = null;
+                    onLayout = (_, _) =>
+                    {
+                        if (richTextBox.ViewportHeight == 0 && richTextBox.ExtentHeight == 0)
+                        {
+                            return;
+                        }
+
+                        richTextBox.LayoutUpdated -= onLayout;
+                        ScrollToFollow(richTextBox);
+                    };
+                    richTextBox.LayoutUpdated += onLayout;
+                    return;
+                }
+
+                ScrollToFollow(richTextBox);
+            }
+            catch
+            {
+            }
+        }
+
+        private void ScrollToFollow(System.Windows.Controls.RichTextBox richTextBox)
+        {
+            try
+            {
+                if (Args.Prepend)
+                {
+                    richTextBox.ScrollToHome();
+                }
+                else
+                {
+                    richTextBox.ScrollToEnd();
+                }
+            }
+            catch
+            {
             }
         }
 

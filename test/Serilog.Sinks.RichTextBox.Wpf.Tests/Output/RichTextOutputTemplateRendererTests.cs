@@ -1,4 +1,4 @@
-﻿#region Copyright 2021 C. Augusto Proiete & Contributors
+#region Copyright 2021 C. Augusto Proiete & Contributors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,18 +16,20 @@
 
 using System;
 using System.Globalization;
+using System.Windows.Media;
 using Serilog.Events;
 using Serilog.Sinks.RichTextBox.Output;
 using Serilog.Sinks.RichTextBox.Rendering;
 using Serilog.Sinks.RichTextBox.Themes;
 using Serilog.Sinks.RichTextBox.Wpf.Tests.Support;
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Serilog.Sinks.RichTextBox.Wpf.Tests.Output
 {
+    [TestClass]
     public class RichTextOutputTemplateRendererTests
     {
-        [Fact]
+        [TestMethod]
         public void UsesFormatProvider()
         {
             var french = new CultureInfo("fr-FR");
@@ -37,10 +39,10 @@ namespace Serilog.Sinks.RichTextBox.Wpf.Tests.Output
             var sw = new RichTextLineWriter();
             formatter.Format(evt, sw);
 
-            Assert.Equal("12,345", sw.ToString());
+            Assert.AreEqual("12,345", sw.ToString());
         }
 
-        [Fact]
+        [TestMethod]
         public void MessageTemplatesContainingFormatStringPropertiesRenderCorrectly()
         {
             var formatter = new RichTextOutputTemplateRenderer(RichTextBoxTheme.None, "{Message}", CultureInfo.InvariantCulture);
@@ -49,10 +51,10 @@ namespace Serilog.Sinks.RichTextBox.Wpf.Tests.Output
             var sw = new RichTextLineWriter();
             formatter.Format(evt, sw);
 
-            Assert.Equal("\"Hello, world!\"", sw.ToString());
+            Assert.AreEqual("\"Hello, world!\"", sw.ToString());
         }
 
-        [Fact]
+        [TestMethod]
         public void UppercaseFormatSpecifierIsSupportedForStrings()
         {
             var formatter = new RichTextOutputTemplateRenderer(RichTextBoxTheme.None, "{Name:u}", CultureInfo.InvariantCulture);
@@ -61,10 +63,10 @@ namespace Serilog.Sinks.RichTextBox.Wpf.Tests.Output
             var sw = new RichTextLineWriter();
             formatter.Format(evt, sw);
 
-            Assert.Equal("NICK", sw.ToString());
+            Assert.AreEqual("NICK", sw.ToString());
         }
 
-        [Fact]
+        [TestMethod]
         public void LowercaseFormatSpecifierIsSupportedForStrings()
         {
             var formatter = new RichTextOutputTemplateRenderer(RichTextBoxTheme.None, "{Name:w}", CultureInfo.InvariantCulture);
@@ -73,56 +75,56 @@ namespace Serilog.Sinks.RichTextBox.Wpf.Tests.Output
             var sw = new RichTextLineWriter();
             formatter.Format(evt, sw);
 
-            Assert.Equal("nick", sw.ToString());
+            Assert.AreEqual("nick", sw.ToString());
         }
 
-        [Theory]
-        [InlineData(LogEventLevel.Verbose, 1, "V")]
-        [InlineData(LogEventLevel.Verbose, 2, "Vb")]
-        [InlineData(LogEventLevel.Verbose, 3, "Vrb")]
-        [InlineData(LogEventLevel.Verbose, 4, "Verb")]
-        [InlineData(LogEventLevel.Verbose, 5, "Verbo")]
-        [InlineData(LogEventLevel.Verbose, 6, "Verbos")]
-        [InlineData(LogEventLevel.Verbose, 7, "Verbose")]
-        [InlineData(LogEventLevel.Verbose, 8, "Verbose")]
-        [InlineData(LogEventLevel.Debug, 1, "D")]
-        [InlineData(LogEventLevel.Debug, 2, "De")]
-        [InlineData(LogEventLevel.Debug, 3, "Dbg")]
-        [InlineData(LogEventLevel.Debug, 4, "Dbug")]
-        [InlineData(LogEventLevel.Debug, 5, "Debug")]
-        [InlineData(LogEventLevel.Debug, 6, "Debug")]
-        [InlineData(LogEventLevel.Information, 1, "I")]
-        [InlineData(LogEventLevel.Information, 2, "In")]
-        [InlineData(LogEventLevel.Information, 3, "Inf")]
-        [InlineData(LogEventLevel.Information, 4, "Info")]
-        [InlineData(LogEventLevel.Information, 5, "Infor")]
-        [InlineData(LogEventLevel.Information, 6, "Inform")]
-        [InlineData(LogEventLevel.Information, 7, "Informa")]
-        [InlineData(LogEventLevel.Information, 8, "Informat")]
-        [InlineData(LogEventLevel.Information, 9, "Informati")]
-        [InlineData(LogEventLevel.Information, 10, "Informatio")]
-        [InlineData(LogEventLevel.Information, 11, "Information")]
-        [InlineData(LogEventLevel.Information, 12, "Information")]
-        [InlineData(LogEventLevel.Error, 1, "E")]
-        [InlineData(LogEventLevel.Error, 2, "Er")]
-        [InlineData(LogEventLevel.Error, 3, "Err")]
-        [InlineData(LogEventLevel.Error, 4, "Eror")]
-        [InlineData(LogEventLevel.Error, 5, "Error")]
-        [InlineData(LogEventLevel.Error, 6, "Error")]
-        [InlineData(LogEventLevel.Fatal, 1, "F")]
-        [InlineData(LogEventLevel.Fatal, 2, "Fa")]
-        [InlineData(LogEventLevel.Fatal, 3, "Ftl")]
-        [InlineData(LogEventLevel.Fatal, 4, "Fatl")]
-        [InlineData(LogEventLevel.Fatal, 5, "Fatal")]
-        [InlineData(LogEventLevel.Fatal, 6, "Fatal")]
-        [InlineData(LogEventLevel.Warning, 1, "W")]
-        [InlineData(LogEventLevel.Warning, 2, "Wn")]
-        [InlineData(LogEventLevel.Warning, 3, "Wrn")]
-        [InlineData(LogEventLevel.Warning, 4, "Warn")]
-        [InlineData(LogEventLevel.Warning, 5, "Warni")]
-        [InlineData(LogEventLevel.Warning, 6, "Warnin")]
-        [InlineData(LogEventLevel.Warning, 7, "Warning")]
-        [InlineData(LogEventLevel.Warning, 8, "Warning")]
+        [TestMethod]
+        [DataRow(LogEventLevel.Verbose, 1, "V")]
+        [DataRow(LogEventLevel.Verbose, 2, "Vb")]
+        [DataRow(LogEventLevel.Verbose, 3, "Vrb")]
+        [DataRow(LogEventLevel.Verbose, 4, "Verb")]
+        [DataRow(LogEventLevel.Verbose, 5, "Verbo")]
+        [DataRow(LogEventLevel.Verbose, 6, "Verbos")]
+        [DataRow(LogEventLevel.Verbose, 7, "Verbose")]
+        [DataRow(LogEventLevel.Verbose, 8, "Verbose")]
+        [DataRow(LogEventLevel.Debug, 1, "D")]
+        [DataRow(LogEventLevel.Debug, 2, "De")]
+        [DataRow(LogEventLevel.Debug, 3, "Dbg")]
+        [DataRow(LogEventLevel.Debug, 4, "Dbug")]
+        [DataRow(LogEventLevel.Debug, 5, "Debug")]
+        [DataRow(LogEventLevel.Debug, 6, "Debug")]
+        [DataRow(LogEventLevel.Information, 1, "I")]
+        [DataRow(LogEventLevel.Information, 2, "In")]
+        [DataRow(LogEventLevel.Information, 3, "Inf")]
+        [DataRow(LogEventLevel.Information, 4, "Info")]
+        [DataRow(LogEventLevel.Information, 5, "Infor")]
+        [DataRow(LogEventLevel.Information, 6, "Inform")]
+        [DataRow(LogEventLevel.Information, 7, "Informa")]
+        [DataRow(LogEventLevel.Information, 8, "Informat")]
+        [DataRow(LogEventLevel.Information, 9, "Informati")]
+        [DataRow(LogEventLevel.Information, 10, "Informatio")]
+        [DataRow(LogEventLevel.Information, 11, "Information")]
+        [DataRow(LogEventLevel.Information, 12, "Information")]
+        [DataRow(LogEventLevel.Error, 1, "E")]
+        [DataRow(LogEventLevel.Error, 2, "Er")]
+        [DataRow(LogEventLevel.Error, 3, "Err")]
+        [DataRow(LogEventLevel.Error, 4, "Eror")]
+        [DataRow(LogEventLevel.Error, 5, "Error")]
+        [DataRow(LogEventLevel.Error, 6, "Error")]
+        [DataRow(LogEventLevel.Fatal, 1, "F")]
+        [DataRow(LogEventLevel.Fatal, 2, "Fa")]
+        [DataRow(LogEventLevel.Fatal, 3, "Ftl")]
+        [DataRow(LogEventLevel.Fatal, 4, "Fatl")]
+        [DataRow(LogEventLevel.Fatal, 5, "Fatal")]
+        [DataRow(LogEventLevel.Fatal, 6, "Fatal")]
+        [DataRow(LogEventLevel.Warning, 1, "W")]
+        [DataRow(LogEventLevel.Warning, 2, "Wn")]
+        [DataRow(LogEventLevel.Warning, 3, "Wrn")]
+        [DataRow(LogEventLevel.Warning, 4, "Warn")]
+        [DataRow(LogEventLevel.Warning, 5, "Warni")]
+        [DataRow(LogEventLevel.Warning, 6, "Warnin")]
+        [DataRow(LogEventLevel.Warning, 7, "Warning")]
+        [DataRow(LogEventLevel.Warning, 8, "Warning")]
         public void FixedLengthLevelIsSupported(
             LogEventLevel level,
             int width,
@@ -134,10 +136,10 @@ namespace Serilog.Sinks.RichTextBox.Wpf.Tests.Output
             var sw = new RichTextLineWriter();
             formatter.Format(evt, sw);
 
-            Assert.Equal(expected, sw.ToString());
+            Assert.AreEqual(expected, sw.ToString());
         }
 
-        [Fact]
+        [TestMethod]
         public void FixedLengthLevelSupportsUpperCasing()
         {
             var formatter = new RichTextOutputTemplateRenderer(RichTextBoxTheme.None, "{Level:u3}", CultureInfo.InvariantCulture);
@@ -146,10 +148,10 @@ namespace Serilog.Sinks.RichTextBox.Wpf.Tests.Output
             var sw = new RichTextLineWriter();
             formatter.Format(evt, sw);
 
-            Assert.Equal("INF", sw.ToString());
+            Assert.AreEqual("INF", sw.ToString());
         }
 
-        [Fact]
+        [TestMethod]
         public void FixedLengthLevelSupportsLowerCasing()
         {
             var formatter = new RichTextOutputTemplateRenderer(RichTextBoxTheme.None, "{Level:w3}", CultureInfo.InvariantCulture);
@@ -158,10 +160,10 @@ namespace Serilog.Sinks.RichTextBox.Wpf.Tests.Output
             var sw = new RichTextLineWriter();
             formatter.Format(evt, sw);
 
-            Assert.Equal("inf", sw.ToString());
+            Assert.AreEqual("inf", sw.ToString());
         }
 
-        [Fact]
+        [TestMethod]
         public void DefaultLevelLengthIsFullText()
         {
             var formatter = new RichTextOutputTemplateRenderer(RichTextBoxTheme.None, "{Level}", CultureInfo.InvariantCulture);
@@ -170,10 +172,10 @@ namespace Serilog.Sinks.RichTextBox.Wpf.Tests.Output
             var sw = new RichTextLineWriter();
             formatter.Format(evt, sw);
 
-            Assert.Equal("Information", sw.ToString());
+            Assert.AreEqual("Information", sw.ToString());
         }
 
-        [Fact]
+        [TestMethod]
         public void AlignmentAndWidthCanBeCombined()
         {
             var formatter = new RichTextOutputTemplateRenderer(RichTextBoxTheme.None, "{Level,5:w3}", CultureInfo.InvariantCulture);
@@ -182,7 +184,7 @@ namespace Serilog.Sinks.RichTextBox.Wpf.Tests.Output
             var sw = new RichTextLineWriter();
             formatter.Format(evt, sw);
 
-            Assert.Equal("  inf", sw.ToString());
+            Assert.AreEqual("  inf", sw.ToString());
         }
 
         private enum Size
@@ -220,7 +222,7 @@ namespace Serilog.Sinks.RichTextBox.Wpf.Tests.Output
             }
         }
 
-        [Fact]
+        [TestMethod]
         public void AppliesCustomFormatterToEnums()
         {
             var formatter = new RichTextOutputTemplateRenderer(RichTextBoxTheme.None, "{Message}", new SizeFormatter(CultureInfo.InvariantCulture));
@@ -229,10 +231,10 @@ namespace Serilog.Sinks.RichTextBox.Wpf.Tests.Output
             var sw = new RichTextLineWriter();
             formatter.Format(evt, sw);
 
-            Assert.Equal("Size Huge", sw.ToString());
+            Assert.AreEqual("Size Huge", sw.ToString());
         }
 
-        [Fact]
+        [TestMethod]
         public void NonMessagePropertiesAreRendered()
         {
             var formatter = new RichTextOutputTemplateRenderer(RichTextBoxTheme.None, "{Properties}", CultureInfo.InvariantCulture);
@@ -241,10 +243,10 @@ namespace Serilog.Sinks.RichTextBox.Wpf.Tests.Output
             var sw = new RichTextLineWriter();
             formatter.Format(evt, sw);
 
-            Assert.Equal("{Foo=42}", sw.ToString());
+            Assert.AreEqual("{Foo=42}", sw.ToString());
         }
 
-        [Fact]
+        [TestMethod]
         public void NonMessagePositionalPropertiesAreRendered()
         {
             var formatter = new RichTextOutputTemplateRenderer(RichTextBoxTheme.None, "{Properties}", CultureInfo.InvariantCulture);
@@ -253,10 +255,10 @@ namespace Serilog.Sinks.RichTextBox.Wpf.Tests.Output
             var sw = new RichTextLineWriter();
             formatter.Format(evt, sw);
 
-            Assert.Equal("{Foo=42}", sw.ToString());
+            Assert.AreEqual("{Foo=42}", sw.ToString());
         }
 
-        [Fact]
+        [TestMethod]
         public void DoNotDuplicatePropertiesAlreadyRenderedInOutputTemplate()
         {
             var formatter = new RichTextOutputTemplateRenderer(RichTextBoxTheme.None, "{Foo} {Properties}", CultureInfo.InvariantCulture);
@@ -265,15 +267,15 @@ namespace Serilog.Sinks.RichTextBox.Wpf.Tests.Output
             var sw = new RichTextLineWriter();
             formatter.Format(evt, sw);
 
-            Assert.Equal("42 {Bar=42}", sw.ToString());
+            Assert.AreEqual("42 {Bar=42}", sw.ToString());
         }
 
-        [Theory]
-        [InlineData("", "Hello, \"World\"!")]
-        [InlineData(":j", "Hello, \"World\"!")]
-        [InlineData(":l", "Hello, World!")]
-        [InlineData(":lj", "Hello, World!")]
-        [InlineData(":jl", "Hello, World!")]
+        [TestMethod]
+        [DataRow("", "Hello, \"World\"!")]
+        [DataRow(":j", "Hello, \"World\"!")]
+        [DataRow(":l", "Hello, World!")]
+        [DataRow(":lj", "Hello, World!")]
+        [DataRow(":jl", "Hello, World!")]
         public void AppliesLiteralFormattingToMessageStringsWhenSpecified(string format, string expected)
         {
             var formatter = new RichTextOutputTemplateRenderer(RichTextBoxTheme.None, "{Message" + format + "}", null);
@@ -282,14 +284,14 @@ namespace Serilog.Sinks.RichTextBox.Wpf.Tests.Output
             var sw = new RichTextLineWriter();
             formatter.Format(evt, sw);
 
-            Assert.Equal(expected, sw.ToString());
+            Assert.AreEqual(expected, sw.ToString());
         }
 
-        [Theory]
-        [InlineData("", "{Name=\"World\"}")]
-        [InlineData(":j", "{\"Name\": \"World\"}")]
-        [InlineData(":lj", "{\"Name\": \"World\"}")]
-        [InlineData(":jl", "{\"Name\": \"World\"}")]
+        [TestMethod]
+        [DataRow("", "{Name=\"World\"}")]
+        [DataRow(":j", "{\"Name\": \"World\"}")]
+        [DataRow(":lj", "{\"Name\": \"World\"}")]
+        [DataRow(":jl", "{\"Name\": \"World\"}")]
         public void AppliesJsonFormattingToMessageStructuresWhenSpecified(string format, string expected)
         {
             var formatter = new RichTextOutputTemplateRenderer(RichTextBoxTheme.None, "{Message" + format + "}", null);
@@ -298,14 +300,14 @@ namespace Serilog.Sinks.RichTextBox.Wpf.Tests.Output
             var sw = new RichTextLineWriter();
             formatter.Format(evt, sw);
 
-            Assert.Equal(expected, sw.ToString());
+            Assert.AreEqual(expected, sw.ToString());
         }
 
-        [Theory]
-        [InlineData("", "{Name=\"World\"}")]
-        [InlineData(":j", "{\"Name\": \"World\"}")]
-        [InlineData(":lj", "{\"Name\": \"World\"}")]
-        [InlineData(":jl", "{\"Name\": \"World\"}")]
+        [TestMethod]
+        [DataRow("", "{Name=\"World\"}")]
+        [DataRow(":j", "{\"Name\": \"World\"}")]
+        [DataRow(":lj", "{\"Name\": \"World\"}")]
+        [DataRow(":jl", "{\"Name\": \"World\"}")]
         public void AppliesJsonFormattingToPropertiesTokenWhenSpecified(string format, string expected)
         {
             var formatter = new RichTextOutputTemplateRenderer(RichTextBoxTheme.None, "{Properties" + format + "}", null);
@@ -314,10 +316,10 @@ namespace Serilog.Sinks.RichTextBox.Wpf.Tests.Output
             var sw = new RichTextLineWriter();
             formatter.Format(evt, sw);
 
-            Assert.Equal(expected, sw.ToString());
+            Assert.AreEqual(expected, sw.ToString());
         }
 
-        [Fact]
+        [TestMethod]
         public void AnEmptyPropertiesTokenIsAnEmptyStructureValue()
         {
             var formatter = new RichTextOutputTemplateRenderer(RichTextBoxTheme.None, "{Properties}", null);
@@ -330,17 +332,17 @@ namespace Serilog.Sinks.RichTextBox.Wpf.Tests.Output
             //
             // var expected = new StructureValue(Enumerable.Empty<LogEventProperty>()).ToString();
             // // expected == "{  }"
-            // Assert.Equal(expected, sw.ToString());
+            // Assert.AreEqual(expected, sw.ToString());
             //
-            Assert.Equal("{}", sw.ToString());
+            Assert.AreEqual("{}", sw.ToString());
         }
 
-        [Theory]
-        [InlineData("", true)]
-        [InlineData(":lj", true)]
-        [InlineData(":jl", true)]
-        [InlineData(":j", false)]
-        [InlineData(":l", true)]
+        [TestMethod]
+        [DataRow("", true)]
+        [DataRow(":lj", true)]
+        [DataRow(":jl", true)]
+        [DataRow(":j", false)]
+        [DataRow(":l", true)]
         public void FormatProviderWithScalarProperties(string format, bool shouldUseCustomFormatter)
         {
             var frenchFormatProvider = new CultureInfo("fr-FR");
@@ -371,12 +373,12 @@ namespace Serilog.Sinks.RichTextBox.Wpf.Tests.Output
             Assert.Contains(expectedFormattedNumber, sw.ToString());
         }
 
-        [Theory]
-        [InlineData("", true)]
-        [InlineData(":lj", false)]
-        [InlineData(":jl", false)]
-        [InlineData(":j", false)]
-        [InlineData(":l", true)]
+        [TestMethod]
+        [DataRow("", true)]
+        [DataRow(":lj", false)]
+        [DataRow(":jl", false)]
+        [DataRow(":j", false)]
+        [DataRow(":l", true)]
         public void FormatProviderWithDestructuredProperties(string format, bool shouldUseCustomFormatter)
         {
             var frenchFormatProvider = new CultureInfo("fr-FR");
@@ -407,6 +409,55 @@ namespace Serilog.Sinks.RichTextBox.Wpf.Tests.Output
 
             Assert.Contains(expectedFormattedDate, sw.ToString());
             Assert.Contains(expectedFormattedNumber, sw.ToString());
+        }
+
+        [TestMethod]
+        public void ExceptionTextDoesNotEndWithANewline()
+        {
+            Exception exception;
+            try
+            {
+                throw new InvalidOperationException("boom");
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
+
+            var formatter = new RichTextOutputTemplateRenderer(RichTextBoxTheme.None, "{Exception}", CultureInfo.InvariantCulture);
+            var evt = DelegatingSink.GetLogEvent(l => l.Error(exception, "failed"));
+            var writer = new RichTextLineWriter();
+            formatter.Format(evt, writer);
+
+            var text = writer.ToString();
+            Assert.Contains("boom", text);
+            Assert.Contains(Environment.NewLine, text);
+            Assert.IsFalse(text.EndsWith("\n") || text.EndsWith("\r"));
+        }
+
+        [TestMethod]
+        public void CustomThemeStyleIsApplied()
+        {
+            var formatter = new RichTextOutputTemplateRenderer(new RedTextTheme(), "{Message}", CultureInfo.InvariantCulture);
+            var evt = DelegatingSink.GetLogEvent(l => l.Information("Hello"));
+            var writer = new RichTextLineWriter();
+            formatter.Format(evt, writer);
+
+            var line = writer.ToLine();
+            Assert.IsTrue(line.Fragments.Exists(fragment => fragment.Text == "Hello" && fragment.Style.Foreground == Brushes.Red));
+        }
+
+        private sealed class RedTextTheme : RichTextBoxTheme
+        {
+            public override RichTextRunStyle GetStyle(RichTextBoxThemeStyle style)
+            {
+                if (style == RichTextBoxThemeStyle.Text)
+                {
+                    return new RichTextRunStyle { Foreground = Brushes.Red };
+                }
+
+                return default;
+            }
         }
     }
 }

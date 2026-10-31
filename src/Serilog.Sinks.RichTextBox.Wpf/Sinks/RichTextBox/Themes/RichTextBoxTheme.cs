@@ -28,14 +28,19 @@ namespace Serilog.Sinks.RichTextBox.Themes
         /// </summary>
         public static RichTextBoxTheme None { get; } = new EmptyRichTextBoxTheme();
 
-        internal virtual RichTextRunStyle GetDirectStyle(RichTextBoxThemeStyle style)
+        /// <summary>
+        /// Returns the foreground, background, and font weight for <paramref name="style"/>.
+        /// The default leaves the run unstyled. Override this to theme output from another assembly.
+        /// </summary>
+        /// <param name="style">The kind of text being written.</param>
+        public virtual RichTextRunStyle GetStyle(RichTextBoxThemeStyle style)
         {
             return default;
         }
 
         internal StyleReset Apply(RichTextLineWriter output, RichTextBoxThemeStyle style)
         {
-            output.Push(GetDirectStyle(style));
+            output.Push(GetStyle(style));
             return new StyleReset(output);
         }
     }

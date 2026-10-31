@@ -38,7 +38,28 @@ namespace Serilog.Sinks.RichTextBox.Abstraction
             _richTextBoxes = documents?.ToArray() ?? throw new ArgumentNullException(nameof(documents));
             _outputAppender = outputAppender ?? throw new ArgumentNullException(nameof(outputAppender));
 
+            foreach (var document in _richTextBoxes)
+            {
+                if (document is null)
+                {
+                    throw new ArgumentNullException(nameof(documents));
+                }
+            }
+
             _richTextBoxesByDispatcher = _richTextBoxes.ToLookup(x => x.Dispatcher);
+        }
+
+        public bool CheckAccess()
+        {
+            foreach (var pair in _richTextBoxesByDispatcher)
+            {
+                if (pair.Key != null && pair.Key.CheckAccess())
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         public async Task WriteAsync(IReadOnlyList<RichTextLine> lines)

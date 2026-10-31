@@ -2,14 +2,17 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net5.0-windows7</TargetFramework>
+    <TargetFrameworks>net48;net10.0-windows</TargetFrameworks>
     <UseWindowsForms>true</UseWindowsForms>
     <UseWPF>true</UseWPF>
+    <GenerateResourceUsePreserializedResources Condition="'$(TargetFramework)' == 'net48'">true</GenerateResourceUsePreserializedResources>
+    <ApplicationConfig Condition="'$(TargetFramework)' == 'net48'">App.net48.config</ApplicationConfig>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Serilog" Version="2.10.0" />
-    <PackageReference Include="Serilog.Enrichers.Thread" Version="3.1.0" />
+    <PackageReference Include="Serilog" Version="4.4.0" />
+    <PackageReference Include="System.Resources.Extensions" Version="10.0.0" Condition="'$(TargetFramework)' == 'net48'" />
+    <PackageReference Include="Serilog.Enrichers.Thread" Version="4.0.0" />
   </ItemGroup>
 
   <ItemGroup>

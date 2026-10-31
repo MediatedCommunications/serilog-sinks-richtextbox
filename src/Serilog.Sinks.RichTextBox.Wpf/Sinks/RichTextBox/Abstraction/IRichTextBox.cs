@@ -23,5 +23,8 @@ namespace Serilog.Sinks.RichTextBox.Abstraction
     internal interface IRichTextBox
     {
         Task WriteAsync(IReadOnlyList<RichTextLine> lines);
+
+        /// <summary>True when the calling thread is a dispatcher that owns one of the target documents.</summary>
+        bool CheckAccess();
     }
 }

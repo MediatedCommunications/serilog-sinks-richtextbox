@@ -11,7 +11,9 @@ namespace WinFormsHostNet50Sample
         [STAThread]
         public static void Main()
         {
+#if NET
             Application.SetHighDpiMode(HighDpiMode.SystemAware);
+#endif
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new MainForm());

@@ -46,7 +46,8 @@ namespace Serilog.Sinks.RichTextBox.Themes
             }
         }
 
-        internal override RichTextRunStyle GetDirectStyle(RichTextBoxThemeStyle style)
+        /// <inheritdoc/>
+        public override RichTextRunStyle GetStyle(RichTextBoxThemeStyle style)
         {
             return _directStyles.TryGetValue(style, out var direct) ? direct : default;
         }

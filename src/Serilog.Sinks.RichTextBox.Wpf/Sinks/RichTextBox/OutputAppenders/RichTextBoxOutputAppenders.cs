@@ -2,30 +2,10 @@
 {
     public static class RichTextBoxOutputAppenders
     {
-        public static IRichTextBoxOutputAppender Legacy { get; }
-        public static IRichTextBoxOutputAppender Default { get; }
-
-        static RichTextBoxOutputAppenders()
+        public static IRichTextBoxOutputAppender Default { get; } = new ParagraphRichTextBoxOutputAppender(new ParagraphRichTextBoxOutputAppenderArgs
         {
-            var LegacyArgs = new InlinesRichTextBoxOutputAppenderArgs() {
-                ScrollOnChange = false,
-            };
-
-            Legacy = new InlinesRichTextBoxOutputAppender(LegacyArgs) {
-
-            };
-
-            var DefaultArgs = new ParagraphRichTextBoxOutputAppenderArgs() {
-                ScrollOnChange = true,
-                MaxItems = 100,
-            };
-
-            Default = new ParagraphRichTextBoxOutputAppender(DefaultArgs) {
-
-            };
-
-        }
-
+            ScrollOnChange = true,
+            MaxItems = 100,
+        });
     }
-
 }
