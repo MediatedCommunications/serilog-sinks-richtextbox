@@ -15,7 +15,6 @@
 #endregion
 
 using System;
-using System.IO;
 using Serilog.Events;
 using Serilog.Parsing;
 using Serilog.Sinks.RichTextBox.Formatting;
@@ -26,13 +25,16 @@ namespace Serilog.Sinks.RichTextBox.Output
 {
     internal class MessageTemplateOutputTokenRenderer : OutputTemplateTokenRenderer
     {
-        private readonly RichTextBoxTheme _theme;
         private readonly PropertyToken _token;
         private readonly ThemedMessageTemplateRenderer _renderer;
 
         public MessageTemplateOutputTokenRenderer(RichTextBoxTheme theme, PropertyToken token, IFormatProvider formatProvider)
         {
-            _theme = theme ?? throw new ArgumentNullException(nameof(theme));
+            if (theme is null)
+            {
+                throw new ArgumentNullException(nameof(theme));
+            }
+
             _token = token ?? throw new ArgumentNullException(nameof(token));
 
             var isLiteral = false;
@@ -62,19 +64,17 @@ namespace Serilog.Sinks.RichTextBox.Output
             _renderer = new ThemedMessageTemplateRenderer(theme, valueFormatter, isLiteral);
         }
 
-        public override void Render(LogEvent logEvent, TextWriter output)
+        public override void Render(LogEvent logEvent, RichTextLineWriter output)
         {
-            if (_token.Alignment is null || !_theme.CanBuffer)
+            if (_token.Alignment is null)
             {
                 _renderer.Render(logEvent.MessageTemplate, logEvent.Properties, output);
                 return;
             }
 
-            var buffer = new StringWriter();
-            var invisible = _renderer.Render(logEvent.MessageTemplate, logEvent.Properties, buffer);
-            var value = buffer.ToString();
-
-            Padding.Apply(output, value, _token.Alignment.Value.Widen(invisible));
+            var buffer = new RichTextLineWriter();
+            _renderer.Render(logEvent.MessageTemplate, logEvent.Properties, buffer);
+            output.WriteAligned(buffer.DetachFragments(), _token.Alignment);
         }
     }
 }

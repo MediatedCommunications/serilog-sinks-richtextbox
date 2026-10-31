@@ -14,13 +14,13 @@
 //
 #endregion
 
-using System.IO;
 using Serilog.Events;
+using Serilog.Sinks.RichTextBox.Rendering;
 
 namespace Serilog.Sinks.RichTextBox.Output
 {
     internal abstract class OutputTemplateTokenRenderer
     {
-        public abstract void Render(LogEvent logEvent, TextWriter output);
+        public abstract void Render(LogEvent logEvent, RichTextLineWriter output);
     }
 }

@@ -16,25 +16,25 @@
 
 using System;
 using System.Globalization;
-using System.IO;
 using Serilog.Events;
 using Serilog.Sinks.RichTextBox.Output;
+using Serilog.Sinks.RichTextBox.Rendering;
 using Serilog.Sinks.RichTextBox.Themes;
 using Serilog.Sinks.RichTextBox.Wpf.Tests.Support;
 using Xunit;
 
 namespace Serilog.Sinks.RichTextBox.Wpf.Tests.Output
 {
-    public class XamlOutputTemplateRendererTests
+    public class RichTextOutputTemplateRendererTests
     {
         [Fact]
         public void UsesFormatProvider()
         {
             var french = new CultureInfo("fr-FR");
-            var formatter = new XamlOutputTemplateRenderer(RichTextBoxTheme.None, "{Message}", french);
+            var formatter = new RichTextOutputTemplateRenderer(RichTextBoxTheme.None, "{Message}", french);
             var evt = DelegatingSink.GetLogEvent(l => l.Information("{0}", 12.345));
 
-            var sw = new StringWriter();
+            var sw = new RichTextLineWriter();
             formatter.Format(evt, sw);
 
             Assert.Equal("12,345", sw.ToString());
@@ -43,10 +43,10 @@ namespace Serilog.Sinks.RichTextBox.Wpf.Tests.Output
         [Fact]
         public void MessageTemplatesContainingFormatStringPropertiesRenderCorrectly()
         {
-            var formatter = new XamlOutputTemplateRenderer(RichTextBoxTheme.None, "{Message}", CultureInfo.InvariantCulture);
+            var formatter = new RichTextOutputTemplateRenderer(RichTextBoxTheme.None, "{Message}", CultureInfo.InvariantCulture);
             var evt = DelegatingSink.GetLogEvent(l => l.Information("{Message}", "Hello, world!"));
 
-            var sw = new StringWriter();
+            var sw = new RichTextLineWriter();
             formatter.Format(evt, sw);
 
             Assert.Equal("\"Hello, world!\"", sw.ToString());
@@ -55,10 +55,10 @@ namespace Serilog.Sinks.RichTextBox.Wpf.Tests.Output
         [Fact]
         public void UppercaseFormatSpecifierIsSupportedForStrings()
         {
-            var formatter = new XamlOutputTemplateRenderer(RichTextBoxTheme.None, "{Name:u}", CultureInfo.InvariantCulture);
+            var formatter = new RichTextOutputTemplateRenderer(RichTextBoxTheme.None, "{Name:u}", CultureInfo.InvariantCulture);
             var evt = DelegatingSink.GetLogEvent(l => l.Information("{Name}", "Nick"));
 
-            var sw = new StringWriter();
+            var sw = new RichTextLineWriter();
             formatter.Format(evt, sw);
 
             Assert.Equal("NICK", sw.ToString());
@@ -67,10 +67,10 @@ namespace Serilog.Sinks.RichTextBox.Wpf.Tests.Output
         [Fact]
         public void LowercaseFormatSpecifierIsSupportedForStrings()
         {
-            var formatter = new XamlOutputTemplateRenderer(RichTextBoxTheme.None, "{Name:w}", CultureInfo.InvariantCulture);
+            var formatter = new RichTextOutputTemplateRenderer(RichTextBoxTheme.None, "{Name:w}", CultureInfo.InvariantCulture);
             var evt = DelegatingSink.GetLogEvent(l => l.Information("{Name}", "Nick"));
 
-            var sw = new StringWriter();
+            var sw = new RichTextLineWriter();
             formatter.Format(evt, sw);
 
             Assert.Equal("nick", sw.ToString());
@@ -128,10 +128,10 @@ namespace Serilog.Sinks.RichTextBox.Wpf.Tests.Output
             int width,
             string expected)
         {
-            var formatter = new XamlOutputTemplateRenderer(RichTextBoxTheme.None, $"{{Level:t{width}}}", CultureInfo.InvariantCulture);
+            var formatter = new RichTextOutputTemplateRenderer(RichTextBoxTheme.None, $"{{Level:t{width}}}", CultureInfo.InvariantCulture);
             var evt = DelegatingSink.GetLogEvent(l => l.Write(level, "Hello"));
 
-            var sw = new StringWriter();
+            var sw = new RichTextLineWriter();
             formatter.Format(evt, sw);
 
             Assert.Equal(expected, sw.ToString());
@@ -140,10 +140,10 @@ namespace Serilog.Sinks.RichTextBox.Wpf.Tests.Output
         [Fact]
         public void FixedLengthLevelSupportsUpperCasing()
         {
-            var formatter = new XamlOutputTemplateRenderer(RichTextBoxTheme.None, "{Level:u3}", CultureInfo.InvariantCulture);
+            var formatter = new RichTextOutputTemplateRenderer(RichTextBoxTheme.None, "{Level:u3}", CultureInfo.InvariantCulture);
             var evt = DelegatingSink.GetLogEvent(l => l.Information("Hello"));
 
-            var sw = new StringWriter();
+            var sw = new RichTextLineWriter();
             formatter.Format(evt, sw);
 
             Assert.Equal("INF", sw.ToString());
@@ -152,10 +152,10 @@ namespace Serilog.Sinks.RichTextBox.Wpf.Tests.Output
         [Fact]
         public void FixedLengthLevelSupportsLowerCasing()
         {
-            var formatter = new XamlOutputTemplateRenderer(RichTextBoxTheme.None, "{Level:w3}", CultureInfo.InvariantCulture);
+            var formatter = new RichTextOutputTemplateRenderer(RichTextBoxTheme.None, "{Level:w3}", CultureInfo.InvariantCulture);
             var evt = DelegatingSink.GetLogEvent(l => l.Information("Hello"));
 
-            var sw = new StringWriter();
+            var sw = new RichTextLineWriter();
             formatter.Format(evt, sw);
 
             Assert.Equal("inf", sw.ToString());
@@ -164,10 +164,10 @@ namespace Serilog.Sinks.RichTextBox.Wpf.Tests.Output
         [Fact]
         public void DefaultLevelLengthIsFullText()
         {
-            var formatter = new XamlOutputTemplateRenderer(RichTextBoxTheme.None, "{Level}", CultureInfo.InvariantCulture);
+            var formatter = new RichTextOutputTemplateRenderer(RichTextBoxTheme.None, "{Level}", CultureInfo.InvariantCulture);
             var evt = DelegatingSink.GetLogEvent(l => l.Information("Hello"));
 
-            var sw = new StringWriter();
+            var sw = new RichTextLineWriter();
             formatter.Format(evt, sw);
 
             Assert.Equal("Information", sw.ToString());
@@ -176,10 +176,10 @@ namespace Serilog.Sinks.RichTextBox.Wpf.Tests.Output
         [Fact]
         public void AlignmentAndWidthCanBeCombined()
         {
-            var formatter = new XamlOutputTemplateRenderer(RichTextBoxTheme.None, "{Level,5:w3}", CultureInfo.InvariantCulture);
+            var formatter = new RichTextOutputTemplateRenderer(RichTextBoxTheme.None, "{Level,5:w3}", CultureInfo.InvariantCulture);
             var evt = DelegatingSink.GetLogEvent(l => l.Information("Hello"));
 
-            var sw = new StringWriter();
+            var sw = new RichTextLineWriter();
             formatter.Format(evt, sw);
 
             Assert.Equal("  inf", sw.ToString());
@@ -223,10 +223,10 @@ namespace Serilog.Sinks.RichTextBox.Wpf.Tests.Output
         [Fact]
         public void AppliesCustomFormatterToEnums()
         {
-            var formatter = new XamlOutputTemplateRenderer(RichTextBoxTheme.None, "{Message}", new SizeFormatter(CultureInfo.InvariantCulture));
+            var formatter = new RichTextOutputTemplateRenderer(RichTextBoxTheme.None, "{Message}", new SizeFormatter(CultureInfo.InvariantCulture));
             var evt = DelegatingSink.GetLogEvent(l => l.Information("Size {Size}", Size.Large));
 
-            var sw = new StringWriter();
+            var sw = new RichTextLineWriter();
             formatter.Format(evt, sw);
 
             Assert.Equal("Size Huge", sw.ToString());
@@ -235,10 +235,10 @@ namespace Serilog.Sinks.RichTextBox.Wpf.Tests.Output
         [Fact]
         public void NonMessagePropertiesAreRendered()
         {
-            var formatter = new XamlOutputTemplateRenderer(RichTextBoxTheme.None, "{Properties}", CultureInfo.InvariantCulture);
+            var formatter = new RichTextOutputTemplateRenderer(RichTextBoxTheme.None, "{Properties}", CultureInfo.InvariantCulture);
             var evt = DelegatingSink.GetLogEvent(l => l.ForContext("Foo", 42).Information("Hello from {Bar}!", "bar"));
 
-            var sw = new StringWriter();
+            var sw = new RichTextLineWriter();
             formatter.Format(evt, sw);
 
             Assert.Equal("{Foo=42}", sw.ToString());
@@ -247,10 +247,10 @@ namespace Serilog.Sinks.RichTextBox.Wpf.Tests.Output
         [Fact]
         public void NonMessagePositionalPropertiesAreRendered()
         {
-            var formatter = new XamlOutputTemplateRenderer(RichTextBoxTheme.None, "{Properties}", CultureInfo.InvariantCulture);
+            var formatter = new RichTextOutputTemplateRenderer(RichTextBoxTheme.None, "{Properties}", CultureInfo.InvariantCulture);
             var evt = DelegatingSink.GetLogEvent(l => l.ForContext("Foo", 42).Information("Hello from {0}!", "bar"));
 
-            var sw = new StringWriter();
+            var sw = new RichTextLineWriter();
             formatter.Format(evt, sw);
 
             Assert.Equal("{Foo=42}", sw.ToString());
@@ -259,10 +259,10 @@ namespace Serilog.Sinks.RichTextBox.Wpf.Tests.Output
         [Fact]
         public void DoNotDuplicatePropertiesAlreadyRenderedInOutputTemplate()
         {
-            var formatter = new XamlOutputTemplateRenderer(RichTextBoxTheme.None, "{Foo} {Properties}", CultureInfo.InvariantCulture);
+            var formatter = new RichTextOutputTemplateRenderer(RichTextBoxTheme.None, "{Foo} {Properties}", CultureInfo.InvariantCulture);
             var evt = DelegatingSink.GetLogEvent(l => l.ForContext("Foo", 42).ForContext("Bar", 42).Information("Hello from bar!"));
 
-            var sw = new StringWriter();
+            var sw = new RichTextLineWriter();
             formatter.Format(evt, sw);
 
             Assert.Equal("42 {Bar=42}", sw.ToString());
@@ -276,10 +276,10 @@ namespace Serilog.Sinks.RichTextBox.Wpf.Tests.Output
         [InlineData(":jl", "Hello, World!")]
         public void AppliesLiteralFormattingToMessageStringsWhenSpecified(string format, string expected)
         {
-            var formatter = new XamlOutputTemplateRenderer(RichTextBoxTheme.None, "{Message" + format + "}", null);
+            var formatter = new RichTextOutputTemplateRenderer(RichTextBoxTheme.None, "{Message" + format + "}", null);
             var evt = DelegatingSink.GetLogEvent(l => l.Information("Hello, {Name}!", "World"));
 
-            var sw = new StringWriter();
+            var sw = new RichTextLineWriter();
             formatter.Format(evt, sw);
 
             Assert.Equal(expected, sw.ToString());
@@ -292,10 +292,10 @@ namespace Serilog.Sinks.RichTextBox.Wpf.Tests.Output
         [InlineData(":jl", "{\"Name\": \"World\"}")]
         public void AppliesJsonFormattingToMessageStructuresWhenSpecified(string format, string expected)
         {
-            var formatter = new XamlOutputTemplateRenderer(RichTextBoxTheme.None, "{Message" + format + "}", null);
+            var formatter = new RichTextOutputTemplateRenderer(RichTextBoxTheme.None, "{Message" + format + "}", null);
             var evt = DelegatingSink.GetLogEvent(l => l.Information("{@Obj}", new { Name = "World" }));
 
-            var sw = new StringWriter();
+            var sw = new RichTextLineWriter();
             formatter.Format(evt, sw);
 
             Assert.Equal(expected, sw.ToString());
@@ -308,10 +308,10 @@ namespace Serilog.Sinks.RichTextBox.Wpf.Tests.Output
         [InlineData(":jl", "{\"Name\": \"World\"}")]
         public void AppliesJsonFormattingToPropertiesTokenWhenSpecified(string format, string expected)
         {
-            var formatter = new XamlOutputTemplateRenderer(RichTextBoxTheme.None, "{Properties" + format + "}", null);
+            var formatter = new RichTextOutputTemplateRenderer(RichTextBoxTheme.None, "{Properties" + format + "}", null);
             var evt = DelegatingSink.GetLogEvent(l => l.ForContext("Name", "World").Information("Hello"));
 
-            var sw = new StringWriter();
+            var sw = new RichTextLineWriter();
             formatter.Format(evt, sw);
 
             Assert.Equal(expected, sw.ToString());
@@ -320,10 +320,10 @@ namespace Serilog.Sinks.RichTextBox.Wpf.Tests.Output
         [Fact]
         public void AnEmptyPropertiesTokenIsAnEmptyStructureValue()
         {
-            var formatter = new XamlOutputTemplateRenderer(RichTextBoxTheme.None, "{Properties}", null);
+            var formatter = new RichTextOutputTemplateRenderer(RichTextBoxTheme.None, "{Properties}", null);
             var evt = DelegatingSink.GetLogEvent(l => l.Information("Hello"));
 
-            var sw = new StringWriter();
+            var sw = new RichTextLineWriter();
             formatter.Format(evt, sw);
 
             // /!\ different behavior from Serilog Core : https://github.com/serilog/serilog/blob/5c3a7821aa0f654e551dc21e8e19089f6767666b/test/Serilog.Tests/Formatting/Display/MessageTemplateTextFormatterTests.cs#L268-L278
@@ -357,14 +357,14 @@ namespace Serilog.Sinks.RichTextBox.Wpf.Tests.Output
                 ? number.ToString(frenchFormatProvider)
                 : number.ToString(defaultFormatProvider);
 
-            var formatter = new XamlOutputTemplateRenderer(RichTextBoxTheme.None, "{Message" + format + "}", frenchFormatProvider);
+            var formatter = new RichTextOutputTemplateRenderer(RichTextBoxTheme.None, "{Message" + format + "}", frenchFormatProvider);
 
             var evt = DelegatingSink.GetLogEvent(l =>
             {
                 l.Information("{MyDate}{MyNumber}", date, number);
             });
 
-            var sw = new StringWriter();
+            var sw = new RichTextLineWriter();
             formatter.Format(evt, sw);
 
             Assert.Contains(expectedFormattedDate, sw.ToString());
@@ -392,7 +392,7 @@ namespace Serilog.Sinks.RichTextBox.Wpf.Tests.Output
                 ? number.ToString(frenchFormatProvider)
                 : number.ToString(defaultFormatProvider);
 
-            var formatter = new XamlOutputTemplateRenderer(RichTextBoxTheme.None, "{Message" + format + "}", frenchFormatProvider);
+            var formatter = new RichTextOutputTemplateRenderer(RichTextBoxTheme.None, "{Message" + format + "}", frenchFormatProvider);
             var evt = DelegatingSink.GetLogEvent(l =>
             {
                 l.Information("{@Item}", new
@@ -402,7 +402,7 @@ namespace Serilog.Sinks.RichTextBox.Wpf.Tests.Output
                 });
             });
 
-            var sw = new StringWriter();
+            var sw = new RichTextLineWriter();
             formatter.Format(evt, sw);
 
             Assert.Contains(expectedFormattedDate, sw.ToString());

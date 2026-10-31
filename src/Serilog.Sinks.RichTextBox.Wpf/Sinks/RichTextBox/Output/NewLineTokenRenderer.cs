@@ -15,7 +15,6 @@
 #endregion
 
 using System;
-using System.IO;
 using Serilog.Events;
 using Serilog.Parsing;
 using Serilog.Sinks.RichTextBox.Rendering;
@@ -31,7 +30,7 @@ namespace Serilog.Sinks.RichTextBox.Output
             _alignment = alignment;
         }
 
-        public override void Render(LogEvent logEvent, TextWriter output)
+        public override void Render(LogEvent logEvent, RichTextLineWriter output)
         {
             if (_alignment.HasValue)
             {

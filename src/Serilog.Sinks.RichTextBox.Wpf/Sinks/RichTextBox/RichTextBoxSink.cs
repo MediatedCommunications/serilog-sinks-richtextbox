@@ -16,117 +16,134 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Text;
+using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 using Serilog.Core;
+using Serilog.Debugging;
 using Serilog.Events;
-using Serilog.Formatting;
 using Serilog.Sinks.RichTextBox.Abstraction;
-
-
+using Serilog.Sinks.RichTextBox.Output;
+using Serilog.Sinks.RichTextBox.Rendering;
 
 namespace Serilog.Sinks.RichTextBox
 {
     internal sealed class RichTextBoxSink : ILogEventSink, IDisposable
     {
-        private readonly IRichTextBox _richTextBox;
-        private readonly ITextFormatter _formatter;
+        private const int MaxLinesPerTurn = 40;
+        private static readonly TimeSpan CoalesceWindow = TimeSpan.FromMilliseconds(16);
 
-        private readonly Task _consumerThread;
+        private readonly IRichTextBox _richTextBox;
+        private readonly RichTextOutputTemplateRenderer _formatter;
+
         private readonly ChannelReader<LogEvent> _messageReader;
         private readonly ChannelWriter<LogEvent> _messageWriter;
 
-        public RichTextBoxSink(IRichTextBox richTextBox, ITextFormatter formatter)
+        public RichTextBoxSink(IRichTextBox richTextBox, RichTextOutputTemplateRenderer formatter, int? retainedLineLimit = null)
         {
             _richTextBox = richTextBox ?? throw new ArgumentNullException(nameof(richTextBox));
             _formatter = formatter ?? throw new ArgumentNullException(nameof(formatter));
 
-            var chan = Channel.CreateUnbounded<LogEvent>(new UnboundedChannelOptions() {
-                AllowSynchronousContinuations = false,
-                SingleReader = true,
-                SingleWriter = false,
-            });
+            var chan = retainedLineLimit is int limit && limit > 0
+                ? Channel.CreateBounded<LogEvent>(new BoundedChannelOptions(limit)
+                {
+                    FullMode = BoundedChannelFullMode.DropOldest,
+                    AllowSynchronousContinuations = false,
+                    SingleReader = true,
+                    SingleWriter = false,
+                })
+                : Channel.CreateUnbounded<LogEvent>(new UnboundedChannelOptions
+                {
+                    AllowSynchronousContinuations = false,
+                    SingleReader = true,
+                    SingleWriter = false,
+                });
 
             _messageReader = chan.Reader;
             _messageWriter = chan.Writer;
 
-            _consumerThread = Task.Run(ProcessMessages);
+            Task.Run(ProcessMessages);
         }
 
         private async Task ProcessMessages()
         {
-
-            var moredata = true;
-
-            var MaxDelay = TimeSpan.FromMilliseconds(100);
-            var UnitDelay = TimeSpan.FromMilliseconds(10);
-
-            while (moredata)
+            try
             {
-                moredata = await _messageReader.WaitToReadAsync()
-                    .ConfigureAwait(false)
-                    ;
-
-                if (moredata)
+                while (await _messageReader.WaitToReadAsync().ConfigureAwait(false))
                 {
-
-                    var xamlParagraphMessages = new List<string>();
-
-
-
-                    var MoreFound = true;
-                    var TotalDelay = TimeSpan.Zero;
-
-                    while (MoreFound && TotalDelay < MaxDelay){
-                        MoreFound = false;
-
-                        while (_messageReader.TryRead(out var logEvent))
-                        {
-                            var sb = new StringBuilder();
-                            sb.Append($"<Paragraph xmlns =\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\" xml:space=\"preserve\">");
-
-                            StringWriter writer = new();
-                            _formatter.Format(logEvent, writer);
-                            sb.Append(writer.ToString());
-                            sb.Append("</Paragraph>");
-
-                            var xamlParagraphText = sb.ToString();
-                            xamlParagraphMessages.Add(xamlParagraphText);
-                            MoreFound = true;
-                        }
-
-                        if (MoreFound)
-                        {
-                            await Task.Delay(UnitDelay)
-                                .ConfigureAwait(false)
-                                ;
-
-                            TotalDelay += UnitDelay;
-
-                        }
-
-                    }
-
-                    if (xamlParagraphMessages.Count > 1)
+                    var batch = new List<RichTextLine>(MaxLinesPerTurn);
+                    FillBatch(batch);
+                    if (batch.Count < MaxLinesPerTurn && !_messageReader.Completion.IsCompleted)
                     {
-
+                        await CoalesceAsync(batch).ConfigureAwait(false);
                     }
 
-                    if (xamlParagraphMessages.Count > 0)
+                    if (batch.Count == 0)
                     {
-
-                        await _richTextBox.WriteAsync(xamlParagraphMessages)
-                            .ConfigureAwait(false)
-                            ;
-
+                        continue;
                     }
 
+                    try
+                    {
+                        await _richTextBox.WriteAsync(batch).ConfigureAwait(false);
+                    }
+                    catch (Exception ex)
+                    {
+                        SelfLog.WriteLine("RichTextBox sink write failed: " + ex);
+                        await Task.Delay(CoalesceWindow).ConfigureAwait(false);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                SelfLog.WriteLine("RichTextBox sink consumer stopped: " + ex);
+            }
+        }
+
+        private void FillBatch(List<RichTextLine> batch)
+        {
+            while (batch.Count < MaxLinesPerTurn && _messageReader.TryRead(out var logEvent))
+            {
+                batch.Add(FormatEvent(logEvent));
+            }
+        }
+
+        private async Task CoalesceAsync(List<RichTextLine> batch)
+        {
+            using var timeout = new CancellationTokenSource(CoalesceWindow);
+            while (batch.Count < MaxLinesPerTurn)
+            {
+                FillBatch(batch);
+                if (batch.Count >= MaxLinesPerTurn)
+                {
+                    return;
                 }
 
+                try
+                {
+                    if (!await _messageReader.WaitToReadAsync(timeout.Token).ConfigureAwait(false))
+                    {
+                        return;
+                    }
+                }
+                catch (OperationCanceledException)
+                {
+                    return;
+                }
             }
+        }
 
+        private RichTextLine FormatEvent(LogEvent logEvent)
+        {
+            try
+            {
+                return _formatter.FormatLine(logEvent);
+            }
+            catch (Exception ex)
+            {
+                SelfLog.WriteLine("RichTextBox sink format failed: " + ex);
+                return new RichTextLine(new List<RichTextFragment> { new(ex.Message, default) });
+            }
         }
 
         public void Emit(LogEvent logEvent)
@@ -138,6 +155,5 @@ namespace Serilog.Sinks.RichTextBox
         {
             _messageWriter.TryComplete();
         }
-
     }
 }

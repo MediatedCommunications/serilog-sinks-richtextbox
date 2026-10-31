@@ -14,58 +14,34 @@
 //
 #endregion
 
-using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Threading;
 using Serilog.Sinks.RichTextBox.Abstraction;
+using Serilog.Sinks.RichTextBox.Rendering;
 
 namespace Serilog.Sinks.RichTextBox.Wpf.Tests.Support
 {
     internal class RichTextBoxFixture : IRichTextBox
     {
-        private const string _xamlParagraphStart = "<Paragraph xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\" xml:space=\"preserve\">";
-        private const string _xamlParagraphEnd = "</Paragraph>";
-
         private readonly StringBuilder _contentBuilder = new();
 
         public string Content => _contentBuilder.ToString();
 
-        public Task WriteAsync(List<string> xamlParagraphTexts) {
-            foreach (var xamlParagraphText in xamlParagraphTexts)
+        public Task WriteAsync(IReadOnlyList<RichTextLine> lines)
+        {
+            if (lines != null)
             {
-                Write(xamlParagraphText);
+                foreach (var line in lines)
+                {
+                    foreach (var fragment in line.Fragments)
+                    {
+                        _contentBuilder.Append(fragment.Text);
+                    }
+                }
             }
 
             return Task.CompletedTask;
         }
-
-        public void Write(string xamlParagraphText)
-        {
-            if (xamlParagraphText is null)
-            {
-                throw new ArgumentNullException(nameof(xamlParagraphText));
-            }
-
-            if (!xamlParagraphText.StartsWith(_xamlParagraphStart, StringComparison.Ordinal))
-            {
-                throw new ArgumentException($"{nameof(xamlParagraphText)} must start with `{_xamlParagraphStart}`", nameof(xamlParagraphText));
-            }
-
-            if (!xamlParagraphText.EndsWith(_xamlParagraphEnd, StringComparison.Ordinal))
-            {
-                throw new ArgumentException($"{nameof(xamlParagraphText)} must end with `{_xamlParagraphEnd}`", nameof(xamlParagraphText));
-            }
-
-            var prefixLength = _xamlParagraphStart.Length;
-            var suffixLength = _xamlParagraphEnd.Length;
-
-            var inlines =
-                xamlParagraphText.Substring(prefixLength, xamlParagraphText.Length - prefixLength - suffixLength);
-
-            _contentBuilder.Append(inlines);
-        }
-
     }
 }

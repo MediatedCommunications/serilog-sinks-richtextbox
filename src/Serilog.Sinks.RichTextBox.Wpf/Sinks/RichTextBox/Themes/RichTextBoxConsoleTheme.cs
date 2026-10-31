@@ -16,9 +16,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
 using Serilog.Sinks.RichTextBox.Rendering;
 
 namespace Serilog.Sinks.RichTextBox.Themes
@@ -28,9 +25,7 @@ namespace Serilog.Sinks.RichTextBox.Themes
     /// </summary>
     public class RichTextBoxConsoleTheme : RichTextBoxTheme
     {
-        private readonly IReadOnlyDictionary<RichTextBoxThemeStyle, RichTextBoxConsoleThemeStyle> _styles;
-
-        private const string _runStyleReset = "</Run>";
+        private readonly Dictionary<RichTextBoxThemeStyle, RichTextRunStyle> _directStyles;
 
         /// <summary>
         /// Construct a theme given a set of styles.
@@ -44,7 +39,16 @@ namespace Serilog.Sinks.RichTextBox.Themes
                 throw new ArgumentNullException(nameof(styles));
             }
 
-            _styles = styles.ToDictionary(kv => kv.Key, kv => kv.Value);
+            _directStyles = new Dictionary<RichTextBoxThemeStyle, RichTextRunStyle>(styles.Count);
+            foreach (var pair in styles)
+            {
+                _directStyles.Add(pair.Key, ToDirectStyle(pair.Value));
+            }
+        }
+
+        internal override RichTextRunStyle GetDirectStyle(RichTextBoxThemeStyle style)
+        {
+            return _directStyles.TryGetValue(style, out var direct) ? direct : default;
         }
 
         /// <summary>
@@ -62,53 +66,14 @@ namespace Serilog.Sinks.RichTextBox.Themes
         /// </summary>
         public static RichTextBoxConsoleTheme Colored { get; } = RichTextBoxConsoleThemes.Colored;
 
-        /// <inheritdoc/>
-        public override bool CanBuffer => true;
-
-        /// <inheritdoc/>
-        protected override int ResetCharCount { get; } = _runStyleReset.Length;
-
-        /// <inheritdoc/>
-        public override int Set(TextWriter output, RichTextBoxThemeStyle style)
+        private static RichTextRunStyle ToDirectStyle(RichTextBoxConsoleThemeStyle style)
         {
-            if (_styles.TryGetValue(style, out var runStyle))
+            return new RichTextRunStyle
             {
-                var buffer = new StringBuilder();
-                buffer.Append("<Run");
-
-                var _ = 0;
-
-                var backgroundColor = runStyle.Background;
-                if (!string.IsNullOrWhiteSpace(backgroundColor))
-                {
-                    buffer.AppendFormat(" Background=\"{0}\"", SpecialCharsEscaping.Apply(backgroundColor, ref _));
-                }
-
-                var foregroundColor = runStyle.Foreground;
-                if (!string.IsNullOrWhiteSpace(foregroundColor))
-                {
-                    buffer.AppendFormat(" Foreground=\"{0}\"", SpecialCharsEscaping.Apply(foregroundColor, ref _));
-                }
-
-                var fontWeight = runStyle.FontWeight;
-                if (!string.IsNullOrWhiteSpace(fontWeight))
-                {
-                    buffer.AppendFormat(" FontWeight=\"{0}\"", SpecialCharsEscaping.Apply(fontWeight, ref _));
-                }
-
-                buffer.Append('>');
-
-                output.Write(buffer);
-                return buffer.Length;
-            }
-
-            return 0;
-        }
-
-        /// <inheritdoc/>
-        public override void Reset(TextWriter output)
-        {
-            output.Write(_runStyleReset);
+                Foreground = style.Foreground,
+                Background = style.Background,
+                FontWeight = style.FontWeight == default ? null : style.FontWeight,
+            };
         }
     }
 }

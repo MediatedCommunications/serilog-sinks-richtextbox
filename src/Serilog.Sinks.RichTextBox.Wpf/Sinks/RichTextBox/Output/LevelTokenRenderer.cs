@@ -15,7 +15,6 @@
 #endregion
 
 using System.Collections.Generic;
-using System.IO;
 using Serilog.Events;
 using Serilog.Parsing;
 using Serilog.Sinks.RichTextBox.Rendering;
@@ -49,7 +48,7 @@ namespace Serilog.Sinks.RichTextBox.Output
             _levelToken = levelToken;
         }
 
-        public override void Render(LogEvent logEvent, TextWriter output)
+        public override void Render(LogEvent logEvent, RichTextLineWriter output)
         {
             var moniker = LevelOutputFormat.GetLevelMoniker(logEvent.Level, _levelToken.Format);
             if (!Levels.TryGetValue(logEvent.Level, out var levelStyle))
@@ -57,8 +56,7 @@ namespace Serilog.Sinks.RichTextBox.Output
                 levelStyle = RichTextBoxThemeStyle.Invalid;
             }
 
-            var _ = 0;
-            using (_theme.Apply(output, levelStyle, ref _))
+            using (_theme.Apply(output, levelStyle))
             {
                 Padding.Apply(output, moniker, _levelToken.Alignment);
             }

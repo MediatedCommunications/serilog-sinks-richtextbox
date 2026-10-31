@@ -18,20 +18,21 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows.Documents;
 using System.Windows.Threading;
 using Serilog.Sinks.RichTextBox.Output;
+using Serilog.Sinks.RichTextBox.Rendering;
 
 namespace Serilog.Sinks.RichTextBox.Abstraction
 {
     internal class RichTextBoxImpl : IRichTextBox
     {
         private readonly DispatcherPriority _priority;
-        private readonly System.Windows.Documents.FlowDocument[] _richTextBoxes;
-        private readonly ILookup<Dispatcher, System.Windows.Documents.FlowDocument> _richTextBoxesByDispatcher;
+        private readonly FlowDocument[] _richTextBoxes;
+        private readonly ILookup<Dispatcher, FlowDocument> _richTextBoxesByDispatcher;
         private readonly IRichTextBoxOutputAppender _outputAppender;
 
-
-        public RichTextBoxImpl(DispatcherPriority priority, IRichTextBoxOutputAppender outputAppender, params System.Windows.Documents.FlowDocument[] documents)
+        public RichTextBoxImpl(DispatcherPriority priority, IRichTextBoxOutputAppender outputAppender, params FlowDocument[] documents)
         {
             _priority = priority;
             _richTextBoxes = documents?.ToArray() ?? throw new ArgumentNullException(nameof(documents));
@@ -40,29 +41,33 @@ namespace Serilog.Sinks.RichTextBox.Abstraction
             _richTextBoxesByDispatcher = _richTextBoxes.ToLookup(x => x.Dispatcher);
         }
 
-        private void Write(List<string> xamlParagraphTexts, IEnumerable<System.Windows.Documents.FlowDocument> documents)
+        public async Task WriteAsync(IReadOnlyList<RichTextLine> lines)
+        {
+            if (lines == null || lines.Count == 0)
+            {
+                return;
+            }
+
+            foreach (var pair in _richTextBoxesByDispatcher)
+            {
+                var documents = pair.ToArray();
+                await pair.Key.InvokeAsync(() => Write(lines, documents), _priority).Task
+                    .ConfigureAwait(false);
+            }
+        }
+
+        private void Write(IReadOnlyList<RichTextLine> lines, IEnumerable<FlowDocument> documents)
         {
             foreach (var document in documents)
             {
                 var richTextBox = document.FindLogicalAncestor<System.Windows.Controls.RichTextBox>();
+                if (richTextBox is { IsUndoEnabled: true })
+                {
+                    richTextBox.IsUndoEnabled = false;
+                }
 
-                _outputAppender.Append(richTextBox, document, xamlParagraphTexts);
-
+                _outputAppender.Append(richTextBox, document, lines);
             }
-
         }
-
-        public async Task WriteAsync(List<string> xamlParagraphTexts)
-        {
-            foreach (var Pair in _richTextBoxesByDispatcher)
-            {
-                await Pair.Key.InvokeAsync(() => Write(xamlParagraphTexts, Pair), _priority).Task
-                    .ConfigureAwait(false)
-                    ;
-
-            }
-
-        }
-
     }
 }

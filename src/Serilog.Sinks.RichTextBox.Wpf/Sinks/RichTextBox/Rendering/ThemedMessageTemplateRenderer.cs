@@ -16,7 +16,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using Serilog.Events;
 using Serilog.Parsing;
 using Serilog.Sinks.RichTextBox.Formatting;
@@ -29,131 +28,73 @@ namespace Serilog.Sinks.RichTextBox.Rendering
         private readonly RichTextBoxTheme _theme;
         private readonly ThemedValueFormatter _valueFormatter;
         private readonly bool _isLiteral;
-        private static readonly RichTextBoxTheme _noTheme = new EmptyRichTextBoxTheme();
-        private readonly ThemedValueFormatter _unthemedValueFormatter;
 
         public ThemedMessageTemplateRenderer(RichTextBoxTheme theme, ThemedValueFormatter valueFormatter, bool isLiteral)
         {
             _theme = theme ?? throw new ArgumentNullException(nameof(theme));
             _valueFormatter = valueFormatter;
             _isLiteral = isLiteral;
-            _unthemedValueFormatter = valueFormatter.SwitchTheme(_noTheme);
         }
 
-        public int Render(MessageTemplate template, IReadOnlyDictionary<string, LogEventPropertyValue> properties, TextWriter output)
+        public void Render(MessageTemplate template, IReadOnlyDictionary<string, LogEventPropertyValue> properties, RichTextLineWriter output)
         {
-            var count = 0;
-
             foreach (var token in template.Tokens)
             {
                 if (token is TextToken tt)
                 {
-                    count += RenderTextToken(tt, output);
+                    RenderTextToken(tt, output);
                 }
                 else
                 {
-                    var pt = (PropertyToken)token;
-                    count += RenderPropertyToken(pt, properties, output);
+                    RenderPropertyToken((PropertyToken)token, properties, output);
                 }
             }
-
-            return count;
         }
 
-        private int RenderTextToken(TextToken tt, TextWriter output)
+        private void RenderTextToken(TextToken tt, RichTextLineWriter output)
         {
-            var count = 0;
-            using (_theme.Apply(output, RichTextBoxThemeStyle.Text, ref count))
+            using (_theme.Apply(output, RichTextBoxThemeStyle.Text))
             {
-                var text = SpecialCharsEscaping.Apply(tt.Text, ref count);
-                output.Write(text);
+                output.Write(tt.Text);
             }
-
-            return count;
         }
 
-        private int RenderPropertyToken(PropertyToken pt, IReadOnlyDictionary<string, LogEventPropertyValue> properties, TextWriter output)
+        private void RenderPropertyToken(PropertyToken pt, IReadOnlyDictionary<string, LogEventPropertyValue> properties, RichTextLineWriter output)
         {
             if (!properties.TryGetValue(pt.PropertyName, out var propertyValue))
             {
-                var count = 0;
-                using (_theme.Apply(output, RichTextBoxThemeStyle.Invalid, ref count))
+                using (_theme.Apply(output, RichTextBoxThemeStyle.Invalid))
                 {
-                    output.Write(SpecialCharsEscaping.Apply(pt.ToString(), ref count));
+                    output.Write(pt.ToString());
                 }
 
-                return count;
+                return;
             }
 
             if (!pt.Alignment.HasValue)
             {
-                return RenderValue(_theme, _valueFormatter, propertyValue, output, pt.Format);
+                RenderValue(_theme, _valueFormatter, propertyValue, output, pt.Format);
+                return;
             }
 
-            var valueOutput = new StringWriter();
-
-            if (!_theme.CanBuffer)
-            {
-                return RenderAlignedPropertyTokenUnbuffered(pt, output, propertyValue);
-            }
-
-            var invisibleCount = RenderValue(_theme, _valueFormatter, propertyValue, valueOutput, pt.Format);
-
-            var value = valueOutput.ToString();
-
-            if (value.Length - invisibleCount >= pt.Alignment.Value.Width)
-            {
-                output.Write(value);
-            }
-            else
-            {
-                Padding.Apply(output, value, pt.Alignment.Value.Widen(invisibleCount));
-            }
-
-            return invisibleCount;
+            var valueOutput = new RichTextLineWriter();
+            RenderValue(_theme, _valueFormatter, propertyValue, valueOutput, pt.Format);
+            output.WriteAligned(valueOutput.DetachFragments(), pt.Alignment);
         }
 
-        private int RenderAlignedPropertyTokenUnbuffered(PropertyToken pt, TextWriter output, LogEventPropertyValue propertyValue)
-        {
-            var valueOutput = new StringWriter();
-            RenderValue(_noTheme, _unthemedValueFormatter, propertyValue, valueOutput, pt.Format);
-
-            var valueLength = valueOutput.ToString().Length;
-
-            // ReSharper disable once PossibleInvalidOperationException
-            if (valueLength >= pt.Alignment.Value.Width)
-            {
-                return RenderValue(_theme, _valueFormatter, propertyValue, output, pt.Format);
-            }
-
-            if (pt.Alignment.Value.Direction == AlignmentDirection.Left)
-            {
-                var invisible = RenderValue(_theme, _valueFormatter, propertyValue, output, pt.Format);
-                Padding.Apply(output, string.Empty, pt.Alignment.Value.Widen(-valueLength));
-
-                return invisible;
-            }
-
-            Padding.Apply(output, string.Empty, pt.Alignment.Value.Widen(-valueLength));
-
-            return RenderValue(_theme, _valueFormatter, propertyValue, output, pt.Format);
-        }
-
-        private int RenderValue(RichTextBoxTheme theme, ThemedValueFormatter valueFormatter, LogEventPropertyValue propertyValue, TextWriter output, string format)
+        private void RenderValue(RichTextBoxTheme theme, ThemedValueFormatter valueFormatter, LogEventPropertyValue propertyValue, RichTextLineWriter output, string format)
         {
             if (_isLiteral && propertyValue is ScalarValue { Value: string } sv)
             {
-                var count = 0;
-                using (theme.Apply(output, RichTextBoxThemeStyle.String, ref count))
+                using (theme.Apply(output, RichTextBoxThemeStyle.String))
                 {
-                    var text = SpecialCharsEscaping.Apply(sv.Value.ToString(), ref count);
-                    output.Write(text);
+                    output.Write(sv.Value.ToString());
                 }
 
-                return count;
+                return;
             }
 
-            return valueFormatter.Format(propertyValue, output, format, _isLiteral);
+            valueFormatter.Format(propertyValue, output, format, _isLiteral);
         }
     }
 }

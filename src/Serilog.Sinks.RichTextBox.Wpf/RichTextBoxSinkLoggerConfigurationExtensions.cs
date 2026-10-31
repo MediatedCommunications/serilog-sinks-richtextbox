@@ -70,14 +70,19 @@ namespace Serilog
             object syncRoot = null)
         {
 
-            if(richTextBoxControl is { } && richTextBoxControl.Document is null)
+            if (richTextBoxControl is { })
             {
-                richTextBoxControl.Document = new();
+                if (richTextBoxControl.Document is null)
+                {
+                    richTextBoxControl.Document = new();
+                }
+
+                richTextBoxControl.IsUndoEnabled = false;
             }
 
             var document = richTextBoxControl?.Document;
 
-            return RichTextBox(sinkConfiguration, document, RichTextBoxOutputAppenders.Legacy, restrictedToMinimumLevel, outputTemplate, formatProvider, levelSwitch, theme, dispatcherPriority, syncRoot);
+            return RichTextBox(sinkConfiguration, document, RichTextBoxOutputAppenders.Default, restrictedToMinimumLevel, outputTemplate, formatProvider, levelSwitch, theme, dispatcherPriority, syncRoot);
         }
 
         /// <summary>
@@ -167,12 +172,15 @@ namespace Serilog
 
             var appliedTheme = theme ?? RichTextBoxConsoleThemes.Literate;
 
-            var formatter = new XamlOutputTemplateRenderer(appliedTheme, outputTemplate, formatProvider);
+            var formatter = new RichTextOutputTemplateRenderer(appliedTheme, outputTemplate, formatProvider);
 
 
             var richTextBox = new RichTextBoxImpl(dispatcherPriority, outputAppender, [.. documents]);
 
-            var richTextBoxSink = new RichTextBoxSink(richTextBox, formatter);
+            var retainedLineLimit = outputAppender is ParagraphRichTextBoxOutputAppender paragraph
+                ? paragraph.RetainedLineLimit
+                : null;
+            var richTextBoxSink = new RichTextBoxSink(richTextBox, formatter, retainedLineLimit);
 
             return sinkConfiguration.Sink(richTextBoxSink, restrictedToMinimumLevel, levelSwitch);
         }
@@ -219,7 +227,7 @@ namespace Serilog
 
             var appliedTheme = theme ?? RichTextBoxConsoleThemes.Literate;
 
-            var formatter = new XamlOutputTemplateRenderer(appliedTheme, outputTemplate, formatProvider);
+            var formatter = new RichTextOutputTemplateRenderer(appliedTheme, outputTemplate, formatProvider);
 
             return sinkConfiguration.Sink(new RichTextBoxSink(richTextBox, formatter),
                 restrictedToMinimumLevel, levelSwitch);

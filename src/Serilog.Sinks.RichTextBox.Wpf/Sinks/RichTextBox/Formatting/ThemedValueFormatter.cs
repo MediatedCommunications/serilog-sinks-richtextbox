@@ -15,9 +15,9 @@
 #endregion
 
 using System;
-using System.IO;
 using Serilog.Data;
 using Serilog.Events;
+using Serilog.Sinks.RichTextBox.Rendering;
 using Serilog.Sinks.RichTextBox.Themes;
 
 namespace Serilog.Sinks.RichTextBox.Formatting
@@ -31,16 +31,14 @@ namespace Serilog.Sinks.RichTextBox.Formatting
             _theme = theme ?? throw new ArgumentNullException(nameof(theme));
         }
 
-        protected StyleReset ApplyStyle(TextWriter output, RichTextBoxThemeStyle style, ref int invisibleCharacterCount)
+        protected StyleReset ApplyStyle(RichTextLineWriter output, RichTextBoxThemeStyle style)
         {
-            return _theme.Apply(output, style, ref invisibleCharacterCount);
+            return _theme.Apply(output, style);
         }
 
-        public int Format(LogEventPropertyValue value, TextWriter output, string format, bool literalTopLevel = false)
+        public void Format(LogEventPropertyValue value, RichTextLineWriter output, string format, bool literalTopLevel = false)
         {
-            return Visit(new ThemedValueFormatterState { Output = output, Format = format, IsTopLevel = literalTopLevel }, value);
+            Visit(new ThemedValueFormatterState { Output = output, Format = format, IsTopLevel = literalTopLevel }, value);
         }
-
-        public abstract ThemedValueFormatter SwitchTheme(RichTextBoxTheme theme);
     }
 }

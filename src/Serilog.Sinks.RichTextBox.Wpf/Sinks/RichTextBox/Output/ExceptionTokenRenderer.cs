@@ -32,7 +32,7 @@ namespace Serilog.Sinks.RichTextBox.Output
             _theme = theme;
         }
 
-        public override void Render(LogEvent logEvent, TextWriter output)
+        public override void Render(LogEvent logEvent, RichTextLineWriter output)
         {
             // Padding is never applied by this renderer.
 
@@ -53,11 +53,10 @@ namespace Serilog.Sinks.RichTextBox.Output
             while ((nextLine = lines.ReadLine()) != null)
             {
                 var style = nextLine.StartsWith(_stackFrameLinePrefix) ? RichTextBoxThemeStyle.SecondaryText : RichTextBoxThemeStyle.Text;
-                var _ = 0;
 
-                using (_theme.Apply(output, style, ref _))
+                using (_theme.Apply(output, style))
                 {
-                    output.WriteLine(SpecialCharsEscaping.Apply(nextLine, ref _));
+                    output.WriteLine(nextLine);
                 }
             }
         }

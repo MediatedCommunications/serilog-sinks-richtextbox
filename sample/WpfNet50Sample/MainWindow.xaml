@@ -62,6 +62,7 @@
             FontFamily="Cascadia Mono, Consolas, Courier New, monospace"
             FontSize="14"
             IsReadOnly="True"
+            IsUndoEnabled="False"
             VerticalScrollBarVisibility="Auto"
             HorizontalScrollBarVisibility="Auto"
             Margin="0"

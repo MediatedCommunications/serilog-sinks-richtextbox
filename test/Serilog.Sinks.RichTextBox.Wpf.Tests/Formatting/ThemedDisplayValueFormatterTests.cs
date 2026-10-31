@@ -14,9 +14,9 @@
 //
 #endregion
 
-using System.IO;
 using Serilog.Events;
 using Serilog.Sinks.RichTextBox.Formatting;
+using Serilog.Sinks.RichTextBox.Rendering;
 using Serilog.Sinks.RichTextBox.Themes;
 using Xunit;
 
@@ -30,7 +30,7 @@ namespace Serilog.Sinks.RichTextBox.Wpf.Tests.Formatting
         public void StringFormattingIsApplied(string value, string format, string expected)
         {
             var formatter = new ThemedDisplayValueFormatter(RichTextBoxTheme.None, null);
-            var sw = new StringWriter();
+            var sw = new RichTextLineWriter();
 
             formatter.FormatLiteralValue(new ScalarValue(value), sw, format);
 

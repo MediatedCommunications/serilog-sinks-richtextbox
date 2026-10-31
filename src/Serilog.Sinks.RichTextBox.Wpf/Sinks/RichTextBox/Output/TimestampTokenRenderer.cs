@@ -15,7 +15,6 @@
 #endregion
 
 using System;
-using System.IO;
 using Serilog.Events;
 using Serilog.Parsing;
 using Serilog.Sinks.RichTextBox.Rendering;
@@ -36,28 +35,16 @@ namespace Serilog.Sinks.RichTextBox.Output
             _formatProvider = formatProvider;
         }
 
-        public override void Render(LogEvent logEvent, TextWriter output)
+        public override void Render(LogEvent logEvent, RichTextLineWriter output)
         {
             // We need access to ScalarValue.Render() to avoid this alloc; just ensures
             // that custom format providers are supported properly.
             var sv = new ScalarValue(logEvent.Timestamp);
 
-            var _ = 0;
-
-            using (_theme.Apply(output, RichTextBoxThemeStyle.SecondaryText, ref _))
+            using (_theme.Apply(output, RichTextBoxThemeStyle.SecondaryText))
             {
-                if (_token.Alignment is null)
-                {
-                    sv.Render(output, _token.Format, _formatProvider);
-                }
-                else
-                {
-                    var buffer = new StringWriter();
-                    sv.Render(buffer, _token.Format, _formatProvider);
-
-                    var str = buffer.ToString();
-                    Padding.Apply(output, str, _token.Alignment);
-                }
+                var text = RichTextLineWriter.Capture(writer => sv.Render(writer, _token.Format, _formatProvider));
+                Padding.Apply(output, text, _token.Alignment);
             }
         }
     }

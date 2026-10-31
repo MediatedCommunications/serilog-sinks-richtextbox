@@ -14,7 +14,6 @@
 //
 #endregion
 
-using System.IO;
 using Serilog.Events;
 using Serilog.Sinks.RichTextBox.Rendering;
 using Serilog.Sinks.RichTextBox.Themes;
@@ -32,15 +31,11 @@ namespace Serilog.Sinks.RichTextBox.Output
             _text = text;
         }
 
-        public override void Render(LogEvent logEvent, TextWriter output)
+        public override void Render(LogEvent logEvent, RichTextLineWriter output)
         {
-            var _ = 0;
-            var text = _text;
-
-            using (_theme.Apply(output, RichTextBoxThemeStyle.TertiaryText, ref _))
+            using (_theme.Apply(output, RichTextBoxThemeStyle.TertiaryText))
             {
-                text = SpecialCharsEscaping.Apply(text, ref _);
-                output.Write(text);
+                output.Write(_text);
             }
         }
     }

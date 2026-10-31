@@ -16,20 +16,19 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using Serilog.Events;
-using Serilog.Formatting;
 using Serilog.Formatting.Display;
 using Serilog.Parsing;
+using Serilog.Sinks.RichTextBox.Rendering;
 using Serilog.Sinks.RichTextBox.Themes;
 
 namespace Serilog.Sinks.RichTextBox.Output
 {
-    internal class XamlOutputTemplateRenderer : ITextFormatter
+    internal class RichTextOutputTemplateRenderer
     {
         private readonly OutputTemplateTokenRenderer[] _renderers;
 
-        public XamlOutputTemplateRenderer(RichTextBoxTheme theme, string outputTemplate, IFormatProvider formatProvider)
+        public RichTextOutputTemplateRenderer(RichTextBoxTheme theme, string outputTemplate, IFormatProvider formatProvider)
         {
             if (outputTemplate is null)
             {
@@ -78,7 +77,7 @@ namespace Serilog.Sinks.RichTextBox.Output
             _renderers = [.. renderers];
         }
 
-        public void Format(LogEvent logEvent, TextWriter output)
+        public void Format(LogEvent logEvent, RichTextLineWriter output)
         {
             if (logEvent is null)
             {
@@ -94,6 +93,13 @@ namespace Serilog.Sinks.RichTextBox.Output
             {
                 renderer.Render(logEvent, output);
             }
+        }
+
+        internal RichTextLine FormatLine(LogEvent logEvent)
+        {
+            var writer = new RichTextLineWriter();
+            Format(logEvent, writer);
+            return writer.ToLine();
         }
     }
 }

@@ -36,6 +36,7 @@ namespace WinFormsHostNet50Sample
                 FontFamily = new FontFamily("Cascadia Mono, Consolas, Courier New, monospace"),
                 FontSize = 14,
                 IsReadOnly = true,
+                IsUndoEnabled = false,
                 VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
                 HorizontalScrollBarVisibility = ScrollBarVisibility.Auto,
                 Margin = new Thickness(0),

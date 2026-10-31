@@ -16,9 +16,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using Serilog.Events;
 using Serilog.Sinks.RichTextBox.Formatting;
+using Serilog.Sinks.RichTextBox.Rendering;
 using Serilog.Sinks.RichTextBox.Themes;
 using Xunit;
 
@@ -35,7 +35,7 @@ namespace Serilog.Sinks.RichTextBox.Wpf.Tests.Formatting
 
             public string Format(object literal)
             {
-                var output = new StringWriter();
+                var output = new RichTextLineWriter();
                 Format(new SequenceValue(new[] { new ScalarValue(literal) }), output, null);
 
                 var o = output.ToString();
@@ -49,11 +49,11 @@ namespace Serilog.Sinks.RichTextBox.Wpf.Tests.Formatting
         [InlineData('c', "\"c\"")]
         [InlineData("Hello, world!", "\"Hello, world!\"")]
         [InlineData(true, "true")]
-        [InlineData("\\\"\t\r\n\f", "\"\\\\&quot;\\t\\r\\n\\f\"")]
+        [InlineData("\\\"\t\r\n\f", "\"\\\\\\\"\\t\\r\\n\\f\"")]
         [InlineData("\u0001", "\"\\u0001\"")]
         [InlineData("a\nb", "\"a\\nb\"")]
         [InlineData(null, "null")]
-        [InlineData("Hello, <>&\"' world!", "\"Hello, &lt;&gt;&amp;&quot;&apos; world!\"")]
+        [InlineData("Hello, <>&\"' world!", "\"Hello, <>&\\\"' world!\"")]
         public void JsonLiteralTypesAreFormatted(object value, string expectedJson)
         {
             var formatter = new TestThemedJsonValueFormatter();
@@ -104,7 +104,7 @@ namespace Serilog.Sinks.RichTextBox.Wpf.Tests.Formatting
         private static string Format(LogEventPropertyValue value)
         {
             var formatter = new TestThemedJsonValueFormatter();
-            var output = new StringWriter();
+            var output = new RichTextLineWriter();
 
             formatter.Format(value, output, null);
 

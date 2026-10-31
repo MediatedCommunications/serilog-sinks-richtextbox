@@ -15,9 +15,7 @@
 #endregion
 
 using System;
-using System.IO;
 using System.Linq;
-using System.Text;
 using Serilog.Events;
 using Serilog.Parsing;
 using Serilog.Sinks.RichTextBox.Formatting;
@@ -29,14 +27,17 @@ namespace Serilog.Sinks.RichTextBox.Output
     internal class PropertiesTokenRenderer : OutputTemplateTokenRenderer
     {
         private readonly MessageTemplate _outputTemplate;
-        private readonly RichTextBoxTheme _theme;
         private readonly PropertyToken _token;
         private readonly ThemedValueFormatter _valueFormatter;
 
         public PropertiesTokenRenderer(RichTextBoxTheme theme, PropertyToken token, MessageTemplate outputTemplate, IFormatProvider formatProvider)
         {
             _outputTemplate = outputTemplate;
-            _theme = theme ?? throw new ArgumentNullException(nameof(theme));
+            if (theme is null)
+            {
+                throw new ArgumentNullException(nameof(theme));
+            }
+
             _token = token ?? throw new ArgumentNullException(nameof(token));
 
             var isJson = false;
@@ -58,7 +59,7 @@ namespace Serilog.Sinks.RichTextBox.Output
                 : new ThemedDisplayValueFormatter(theme, formatProvider);
         }
 
-        public override void Render(LogEvent logEvent, TextWriter output)
+        public override void Render(LogEvent logEvent, RichTextLineWriter output)
         {
             var included = logEvent.Properties
                 .Where(p => !TemplateContainsPropertyName(logEvent.MessageTemplate, p.Key) &&
@@ -67,17 +68,15 @@ namespace Serilog.Sinks.RichTextBox.Output
 
             var value = new StructureValue(included);
 
-            if (_token.Alignment is null || !_theme.CanBuffer)
+            if (_token.Alignment is null)
             {
                 _valueFormatter.Format(value, output, null);
                 return;
             }
 
-            var buffer = new StringWriter(new StringBuilder(value.Properties.Count * 16));
-            var invisible = _valueFormatter.Format(value, buffer, null);
-            var str = buffer.ToString();
-
-            Padding.Apply(output, str, _token.Alignment.Value.Widen(invisible));
+            var buffer = new RichTextLineWriter();
+            _valueFormatter.Format(value, buffer, null);
+            output.WriteAligned(buffer.DetachFragments(), _token.Alignment);
         }
 
         private static bool TemplateContainsPropertyName(MessageTemplate template, string propertyName)

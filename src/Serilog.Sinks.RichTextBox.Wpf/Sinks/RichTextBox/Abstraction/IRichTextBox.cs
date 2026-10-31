@@ -16,12 +16,12 @@
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Serilog.Sinks.RichTextBox.Rendering;
 
 namespace Serilog.Sinks.RichTextBox.Abstraction
 {
-    public interface IRichTextBox
+    internal interface IRichTextBox
     {
-        Task WriteAsync(List<string> xamlParagraphTexts);
-
+        Task WriteAsync(IReadOnlyList<RichTextLine> lines);
     }
 }

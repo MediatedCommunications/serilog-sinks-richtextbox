@@ -16,9 +16,7 @@
 
 using System;
 using System.Globalization;
-using System.IO;
 using System.Linq;
-using System.Text;
 using Serilog.Sinks.RichTextBox.Formatting;
 using Serilog.Sinks.RichTextBox.Rendering;
 using Serilog.Sinks.RichTextBox.Themes;
@@ -142,17 +140,14 @@ namespace Serilog.Sinks.RichTextBox.Wpf.Tests.Rendering
             var binder = new LoggerConfiguration().CreateLogger();
             binder.BindMessageTemplate(messageTemplate, properties, out var mt, out var props);
 
-            var output = new StringBuilder();
-
-            var writer = new StringWriter(output);
+            var writer = new RichTextLineWriter();
 
             var renderer = new ThemedMessageTemplateRenderer(RichTextBoxTheme.None,
                 new ThemedDisplayValueFormatter(RichTextBoxTheme.None, formatProvider), false);
 
             renderer.Render(mt, props.ToDictionary(p => p.Name, p => p.Value), writer);
-            writer.Flush();
 
-            return output.ToString();
+            return writer.ToString();
         }
 
         [Fact]

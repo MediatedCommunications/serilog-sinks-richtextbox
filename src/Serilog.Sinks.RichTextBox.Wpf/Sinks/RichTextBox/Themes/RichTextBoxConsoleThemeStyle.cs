@@ -14,26 +14,29 @@
 //
 #endregion
 
+using System.Windows;
+using System.Windows.Media;
+
 namespace Serilog.Sinks.RichTextBox.Themes
 {
     /// <summary>
-    /// Styling applied for Foreground and Background colors.
+    /// Styling applied for foreground, background, and font weight.
     /// </summary>
     public struct RichTextBoxConsoleThemeStyle
     {
         /// <summary>
-        /// The background color to apply. e.g. #ffffff
+        /// The background brush to apply.
         /// </summary>
-        public string Background;
+        public Brush Background;
 
         /// <summary>
-        /// The foreground color to apply. e.g. #ff0000
+        /// The foreground brush to apply.
         /// </summary>
-        public string Foreground;
+        public Brush Foreground;
 
         /// <summary>
-        /// The font weight to apply. e.g. Bold
+        /// The font weight to apply.
         /// </summary>
-        public string FontWeight;
+        public FontWeight FontWeight;
     }
 }

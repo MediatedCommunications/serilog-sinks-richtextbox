@@ -14,7 +14,6 @@
 //
 #endregion
 
-using System.IO;
 using Serilog.Parsing;
 
 namespace Serilog.Sinks.RichTextBox.Rendering
@@ -29,7 +28,7 @@ namespace Serilog.Sinks.RichTextBox.Rendering
         /// <param name="output">Output object to write result.</param>
         /// <param name="value">Provided value.</param>
         /// <param name="alignment">The alignment settings to apply when rendering <paramref name="value"/>.</param>
-        public static void Apply(TextWriter output, string value, Alignment? alignment)
+        public static void Apply(RichTextLineWriter output, string value, Alignment? alignment)
         {
             if (alignment is null || value.Length >= alignment.Value.Width)
             {

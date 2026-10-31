@@ -14,13 +14,13 @@
 //
 #endregion
 
-using System.IO;
+using Serilog.Sinks.RichTextBox.Rendering;
 
 namespace Serilog.Sinks.RichTextBox.Formatting
 {
     internal struct ThemedValueFormatterState
     {
-        public TextWriter Output;
+        public RichTextLineWriter Output;
         public string Format;
         public bool IsTopLevel;
 

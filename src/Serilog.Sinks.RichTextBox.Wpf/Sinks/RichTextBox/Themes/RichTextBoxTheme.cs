@@ -14,7 +14,7 @@
 //
 #endregion
 
-using System.IO;
+using Serilog.Sinks.RichTextBox.Rendering;
 
 namespace Serilog.Sinks.RichTextBox.Themes
 {
@@ -28,37 +28,15 @@ namespace Serilog.Sinks.RichTextBox.Themes
         /// </summary>
         public static RichTextBoxTheme None { get; } = new EmptyRichTextBoxTheme();
 
-        /// <summary>
-        /// True if styling applied by the theme is written into the output, and can thus be
-        /// buffered and measured.
-        /// </summary>
-        public abstract bool CanBuffer { get; }
-
-        /// <summary>
-        /// Begin a span of text in the specified <paramref name="style"/>.
-        /// </summary>
-        /// <param name="output">Output destination.</param>
-        /// <param name="style">Style to apply.</param>
-        /// <returns> The number of characters written to <paramref name="output"/>. </returns>
-        public abstract int Set(TextWriter output, RichTextBoxThemeStyle style);
-
-        /// <summary>
-        /// Reset the output to un-styled colors.
-        /// </summary>
-        /// <param name="output">Output destination.</param>
-        public abstract void Reset(TextWriter output);
-
-        /// <summary>
-        /// The number of characters written by the <see cref="Reset(TextWriter)"/> method.
-        /// </summary>
-        protected abstract int ResetCharCount { get; }
-
-        internal StyleReset Apply(TextWriter output, RichTextBoxThemeStyle style, ref int invisibleCharacterCount)
+        internal virtual RichTextRunStyle GetDirectStyle(RichTextBoxThemeStyle style)
         {
-            invisibleCharacterCount += Set(output, style);
-            invisibleCharacterCount += ResetCharCount;
+            return default;
+        }
 
-            return new StyleReset(this, output);
+        internal StyleReset Apply(RichTextLineWriter output, RichTextBoxThemeStyle style)
+        {
+            output.Push(GetDirectStyle(style));
+            return new StyleReset(output);
         }
     }
 }

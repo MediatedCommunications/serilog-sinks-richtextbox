@@ -1,6 +1,6 @@
 ﻿#region Copyright 2021 C. Augusto Proiete & Contributors
 //
-// Licensed under the Apache License, Version 2.0 (the "License";
+// Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
@@ -14,50 +14,34 @@
 //
 #endregion
 
+using System.Windows.Media;
+
 namespace Serilog.Sinks.RichTextBox.Themes
 {
     internal static class ConsoleHtmlColor
     {
-        private static readonly object _syncLock = new object();
+        public static Brush Black { get; } = Solid(0x00, 0x00, 0x00);
+        public static Brush DarkBlue { get; } = Solid(0x00, 0x00, 0x80);
+        public static Brush DarkGreen { get; } = Solid(0x00, 0x80, 0x00);
+        public static Brush DarkCyan { get; } = Solid(0x00, 0x80, 0x80);
+        public static Brush DarkRed { get; } = Solid(0x80, 0x00, 0x00);
+        public static Brush DarkMagenta { get; } = Solid(0x80, 0x00, 0x80);
+        public static Brush DarkYellow { get; } = Solid(0x80, 0x80, 0x00);
+        public static Brush Gray { get; } = Solid(0xc0, 0xc0, 0xc0);
+        public static Brush DarkGray { get; } = Solid(0x80, 0x80, 0x80);
+        public static Brush Blue { get; } = Solid(0x00, 0x00, 0xff);
+        public static Brush Green { get; } = Solid(0x00, 0xff, 0x00);
+        public static Brush Cyan { get; } = Solid(0x00, 0xff, 0xff);
+        public static Brush Red { get; } = Solid(0xff, 0x00, 0x00);
+        public static Brush Magenta { get; } = Solid(0xff, 0x00, 0xff);
+        public static Brush Yellow { get; } = Solid(0xff, 0xff, 0x00);
+        public static Brush White { get; } = Solid(0xff, 0xff, 0xff);
 
-        static ConsoleHtmlColor()
+        private static SolidColorBrush Solid(byte red, byte green, byte blue)
         {
-            lock (_syncLock)
-            {
-                Black = "#000000";
-                DarkBlue = "#000080";
-                DarkGreen = "#008000";
-                DarkCyan = "#008080";
-                DarkRed = "#800000";
-                DarkMagenta = "#800080";
-                DarkYellow = "#808000";
-                Gray = "#c0c0c0";
-                DarkGray = "#808080";
-                Blue = "#0000ff";
-                Green = "#00ff00";
-                Cyan = "#00ffff";
-                Red = "#ff0000";
-                Magenta = "#ff00ff";
-                Yellow = "#ffff00";
-                White = "#ffffff";
-            }
+            var brush = new SolidColorBrush(Color.FromRgb(red, green, blue));
+            brush.Freeze();
+            return brush;
         }
-
-        public static string Black { get; }
-        public static string DarkBlue { get; }
-        public static string DarkGreen { get; }
-        public static string DarkCyan { get; }
-        public static string DarkRed { get; }
-        public static string DarkMagenta { get; }
-        public static string DarkYellow { get; }
-        public static string Gray { get; }
-        public static string DarkGray { get; }
-        public static string Blue { get; }
-        public static string Green { get; }
-        public static string Cyan { get; }
-        public static string Red { get; }
-        public static string Magenta { get; }
-        public static string Yellow { get; }
-        public static string White { get; }
     }
 }

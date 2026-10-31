@@ -15,24 +15,22 @@
 #endregion
 
 using System;
-using System.IO;
+using Serilog.Sinks.RichTextBox.Rendering;
 
 namespace Serilog.Sinks.RichTextBox.Themes
 {
     internal readonly struct StyleReset : IDisposable
     {
-        private readonly RichTextBoxTheme _theme;
-        private readonly TextWriter _output;
+        private readonly RichTextLineWriter _output;
 
-        public StyleReset(RichTextBoxTheme theme, TextWriter output)
+        public StyleReset(RichTextLineWriter output)
         {
-            _theme = theme;
             _output = output;
         }
 
         public void Dispose()
         {
-            _theme.Reset(_output);
+            _output?.Pop();
         }
     }
 }

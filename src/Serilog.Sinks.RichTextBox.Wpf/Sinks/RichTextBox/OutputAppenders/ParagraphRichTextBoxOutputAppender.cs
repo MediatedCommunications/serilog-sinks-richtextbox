@@ -1,154 +1,208 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Windows.Documents;
+using Serilog.Sinks.RichTextBox.Rendering;
 
 namespace Serilog.Sinks.RichTextBox.Output
 {
     public class ParagraphRichTextBoxOutputAppender : RichTextBoxOutputAppenderBase<ParagraphRichTextBoxOutputAppenderArgs>
     {
-
         public ParagraphRichTextBoxOutputAppender(ParagraphRichTextBoxOutputAppenderArgs args) : base(args)
         {
-
         }
 
-        public override void Append(System.Windows.Controls.RichTextBox richTextBox, FlowDocument document, List<string> Paragraph)
-        {
-            var Text = Paragraph;
+        internal int? RetainedLineLimit => Args.MaxItems is int max && max > 0 ? max : null;
 
-            if (Args.MaxItems is { } MaxItems && Text.Count > MaxItems)
-            {
-                var Skip = Paragraph.Count - MaxItems;
-                Text = Text.Skip(Skip).ToList();
-            }
-
-            base.Append(richTextBox, document, Text);
-        }
-
-        private void Step1(System.Windows.Controls.RichTextBox richTextBox, FlowDocument document, List<Paragraph> paragraphs)
+        private static void StripTrailingNewlines(List<Paragraph> paragraphs)
         {
             foreach (var paragraph in paragraphs)
             {
-
-                if (paragraph.Inlines.LastInline is Run { } Run && (Run.Text == Environment.NewLine || Run.Text == "\n"))
+                if (paragraph.Inlines.LastInline is Run run && (run.Text == Environment.NewLine || run.Text == "\n"))
                 {
-                    paragraph.Inlines.Remove(Run);
+                    paragraph.Inlines.Remove(run);
                 }
-            }
-        }
-
-        private void Step2(System.Windows.Controls.RichTextBox richTextBox, FlowDocument document, List<Paragraph> paragraphs)
-        {
-            if (Args.Prepend)
-            {
-                foreach (var paragraph in paragraphs)
-                {
-                    document.Blocks.InsertBefore(document.Blocks.FirstBlock, paragraph);
-                }
-            }
-            else
-            {
-                document.Blocks.AddRange(paragraphs);
-            }
-        }
-
-        private void Step3(System.Windows.Controls.RichTextBox richTextBox, FlowDocument document, List<Paragraph> paragraphs)
-        {
-
-            /*
-            //I think this is old code we don't need.
-            {
-                if (Args.MaxItems is { } MaxItems && MaxItems > 0)
-                {
-                    if (Args.Prepend)
-                    {
-                        var FirstBlock = document.Blocks.Skip(MaxItems).FirstOrDefault();
-                        if (FirstBlock is { })
-                        {
-                            var TR = new TextRange(FirstBlock.ContentStart, document.Blocks.LastBlock.ContentEnd);
-                            TR.Text = string.Empty;
-                        }
-                    }
-                    else
-                    {
-                        var Skip = document.Blocks.Count - MaxItems;
-                        var LastBlock = document.Blocks.Skip(Skip).FirstOrDefault();
-                        if (LastBlock is { })
-                        {
-                            var TR = new TextRange(document.Blocks.FirstBlock.ContentStart, LastBlock.ContentEnd);
-                            TR.Text = string.Empty;
-                        }
-
-                    }
-                }
-            }
-            */
-
-            {
-                if (Args.MaxItems is { } MaxItems && MaxItems > 0)
-                {
-                    while (document.Blocks.Count > MaxItems)
-                    {
-                        if (Args.Prepend)
-                        {
-                            document.Blocks.Remove(document.Blocks.LastBlock);
-                        }
-                        else
-                        {
-                            document.Blocks.Remove(document.Blocks.FirstBlock);
-                        }
-                    }
-                }
-            }
-
-        }
-
-        private void Step4(System.Windows.Controls.RichTextBox richTextBox, FlowDocument document, List<Paragraph> paragraphs)
-        {
-            try
-            {
-                if (Args.ScrollOnChange)
-                {
-                    if (Args.Prepend)
-                    {
-                        richTextBox?.ScrollToHome();
-                    }
-                    else
-                    {
-                        richTextBox?.ScrollToEnd();
-                    }
-                }
-            } catch
-            {
-
             }
         }
 
         protected override void Append(System.Windows.Controls.RichTextBox richTextBox, FlowDocument document, List<Paragraph> paragraphs)
         {
+            StripTrailingNewlines(paragraphs);
 
-            richTextBox?.BeginChange();
-
+            var follow = false;
+            if (Args.ScrollOnChange && richTextBox != null)
             {
-                Step1(richTextBox, document, paragraphs);
+                follow = Args.Prepend ? IsScrolledToHome(richTextBox) : IsScrolledToEnd(richTextBox);
             }
 
+            var started = false;
+            try
             {
-                Step2(richTextBox, document, paragraphs);
+                if (richTextBox != null)
+                {
+                    richTextBox.BeginChange();
+                    started = true;
+                }
+
+                ApplyBlocks(document, paragraphs);
+            }
+            finally
+            {
+                if (started)
+                {
+                    richTextBox.EndChange();
+                }
             }
 
+            if (!follow || richTextBox == null)
             {
-                Step3(richTextBox, document, paragraphs);
+                return;
             }
 
+            try
             {
-                Step4(richTextBox, document, paragraphs);
+                if (Args.Prepend)
+                {
+                    richTextBox.ScrollToHome();
+                }
+                else
+                {
+                    richTextBox.ScrollToEnd();
+                }
             }
-
-            richTextBox?.EndChange();
+            catch
+            {
+            }
         }
 
-    }
+        private void ApplyBlocks(FlowDocument document, List<Paragraph> paragraphs)
+        {
+            DropLeadingPlaceholder(document);
 
+            var ordered = Args.Prepend ? Reverse(paragraphs) : paragraphs;
+            var max = Args.MaxItems is int limit && limit > 0 ? limit : 0;
+            if (max > 0 && ordered.Count > max)
+            {
+                ordered = Args.Prepend
+                    ? ordered.GetRange(0, max)
+                    : ordered.GetRange(ordered.Count - max, max);
+            }
+
+            if (max > 0 && ordered.Count >= max)
+            {
+                document.Blocks.Clear();
+                document.Blocks.AddRange(ordered);
+                return;
+            }
+
+            if (Args.Prepend)
+            {
+                InsertAtStart(document, ordered);
+            }
+            else
+            {
+                document.Blocks.AddRange(ordered);
+            }
+
+            if (max > 0 && document.Blocks.Count > max)
+            {
+                if (Args.Prepend)
+                {
+                    RemoveTrailingBlocks(document, max);
+                }
+                else
+                {
+                    RemoveLeadingBlocks(document, document.Blocks.Count - max);
+                }
+            }
+        }
+
+        private static void InsertAtStart(FlowDocument document, List<Paragraph> paragraphs)
+        {
+            var anchor = document.Blocks.FirstBlock;
+            if (anchor == null)
+            {
+                document.Blocks.AddRange(paragraphs);
+                return;
+            }
+
+            foreach (var paragraph in paragraphs)
+            {
+                document.Blocks.InsertBefore(anchor, paragraph);
+            }
+        }
+
+        private static List<Paragraph> Reverse(List<Paragraph> paragraphs)
+        {
+            var reversed = new List<Paragraph>(paragraphs.Count);
+            for (var i = paragraphs.Count - 1; i >= 0; i--)
+            {
+                reversed.Add(paragraphs[i]);
+            }
+
+            return reversed;
+        }
+
+        private static void DropLeadingPlaceholder(FlowDocument document)
+        {
+            if (document.Blocks.Count == 1 &&
+                document.Blocks.FirstBlock is Paragraph paragraph &&
+                paragraph.Inlines.Count == 0)
+            {
+                document.Blocks.Clear();
+            }
+        }
+
+        private static void RemoveLeadingBlocks(FlowDocument document, int count)
+        {
+            var block = document.Blocks.FirstBlock;
+            for (var i = 0; i < count && block != null; i++)
+            {
+                var next = block.NextBlock;
+                document.Blocks.Remove(block);
+                block = next;
+            }
+        }
+
+        private static void RemoveTrailingBlocks(FlowDocument document, int keep)
+        {
+            var drop = BlockAt(document, keep);
+            while (drop != null)
+            {
+                var next = drop.NextBlock;
+                document.Blocks.Remove(drop);
+                drop = next;
+            }
+        }
+
+        private static Block BlockAt(FlowDocument document, int index)
+        {
+            var block = document.Blocks.FirstBlock;
+            for (var i = 0; i < index && block != null; i++)
+            {
+                block = block.NextBlock;
+            }
+
+            return block;
+        }
+
+        private static bool IsScrolledToEnd(System.Windows.Controls.RichTextBox richTextBox)
+        {
+            if (!richTextBox.Selection.IsEmpty)
+            {
+                return false;
+            }
+
+            return richTextBox.VerticalOffset + richTextBox.ViewportHeight >= richTextBox.ExtentHeight - 1d;
+        }
+
+        private static bool IsScrolledToHome(System.Windows.Controls.RichTextBox richTextBox)
+        {
+            if (!richTextBox.Selection.IsEmpty)
+            {
+                return false;
+            }
+
+            return richTextBox.VerticalOffset <= 1d;
+        }
+    }
 }

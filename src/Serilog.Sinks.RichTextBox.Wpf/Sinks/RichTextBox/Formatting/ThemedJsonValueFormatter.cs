@@ -16,7 +16,6 @@
 
 using System;
 using System.Globalization;
-using System.IO;
 using Serilog.Events;
 using Serilog.Formatting.Json;
 using Serilog.Sinks.RichTextBox.Rendering;
@@ -34,11 +33,6 @@ namespace Serilog.Sinks.RichTextBox.Formatting
         {
             _displayFormatter = new ThemedDisplayValueFormatter(theme, formatProvider);
             _formatProvider = formatProvider;
-        }
-
-        public override ThemedValueFormatter SwitchTheme(RichTextBoxTheme theme)
-        {
-            return new ThemedJsonValueFormatter(theme, _formatProvider);
         }
 
         protected override int VisitScalarValue(ThemedValueFormatterState state, ScalarValue scalar)
@@ -64,9 +58,7 @@ namespace Serilog.Sinks.RichTextBox.Formatting
                 throw new ArgumentNullException(nameof(sequence));
             }
 
-            var count = 0;
-
-            using (ApplyStyle(state.Output, RichTextBoxThemeStyle.TertiaryText, ref count))
+            using (ApplyStyle(state.Output, RichTextBoxThemeStyle.TertiaryText))
             {
                 state.Output.Write('[');
             }
@@ -78,7 +70,7 @@ namespace Serilog.Sinks.RichTextBox.Formatting
             {
                 if (delim.Length != 0)
                 {
-                    using (ApplyStyle(state.Output, RichTextBoxThemeStyle.TertiaryText, ref count))
+                    using (ApplyStyle(state.Output, RichTextBoxThemeStyle.TertiaryText))
                     {
                         state.Output.Write(delim);
                     }
@@ -88,19 +80,17 @@ namespace Serilog.Sinks.RichTextBox.Formatting
                 Visit(state.Nest(), sequence.Elements[index]);
             }
 
-            using (ApplyStyle(state.Output, RichTextBoxThemeStyle.TertiaryText, ref count))
+            using (ApplyStyle(state.Output, RichTextBoxThemeStyle.TertiaryText))
             {
                 state.Output.Write(']');
             }
 
-            return count;
+            return 0;
         }
 
         protected override int VisitStructureValue(ThemedValueFormatterState state, StructureValue structure)
         {
-            var count = 0;
-
-            using (ApplyStyle(state.Output, RichTextBoxThemeStyle.TertiaryText, ref count))
+            using (ApplyStyle(state.Output, RichTextBoxThemeStyle.TertiaryText))
             {
                 state.Output.Write('{');
             }
@@ -112,7 +102,7 @@ namespace Serilog.Sinks.RichTextBox.Formatting
             {
                 if (delim.Length != 0)
                 {
-                    using (ApplyStyle(state.Output, RichTextBoxThemeStyle.TertiaryText, ref count))
+                    using (ApplyStyle(state.Output, RichTextBoxThemeStyle.TertiaryText))
                     {
                         state.Output.Write(delim);
                     }
@@ -122,57 +112,54 @@ namespace Serilog.Sinks.RichTextBox.Formatting
 
                 var property = structure.Properties[index];
 
-                using (ApplyStyle(state.Output, RichTextBoxThemeStyle.Name, ref count))
+                using (ApplyStyle(state.Output, RichTextBoxThemeStyle.Name))
                 {
-                    var escapedPropertyName = SpecialCharsEscaping.Apply(property.Name, ref count);
-                    JsonValueFormatter.WriteQuotedJsonString(escapedPropertyName, state.Output);
+                    state.Output.WriteCaptured(writer => JsonValueFormatter.WriteQuotedJsonString(property.Name, writer));
                 }
 
-                using (ApplyStyle(state.Output, RichTextBoxThemeStyle.TertiaryText, ref count))
+                using (ApplyStyle(state.Output, RichTextBoxThemeStyle.TertiaryText))
                 {
                     state.Output.Write(": ");
                 }
 
-                count += Visit(state.Nest(), property.Value);
+                Visit(state.Nest(), property.Value);
             }
 
             if (structure.TypeTag != null)
             {
-                using (ApplyStyle(state.Output, RichTextBoxThemeStyle.TertiaryText, ref count))
+                using (ApplyStyle(state.Output, RichTextBoxThemeStyle.TertiaryText))
                 {
                     state.Output.Write(delim);
                 }
 
-                using (ApplyStyle(state.Output, RichTextBoxThemeStyle.Name, ref count))
+                using (ApplyStyle(state.Output, RichTextBoxThemeStyle.Name))
                 {
-                    JsonValueFormatter.WriteQuotedJsonString("$type", state.Output);
+                    state.Output.WriteCaptured(writer => JsonValueFormatter.WriteQuotedJsonString("$type", writer));
                 }
 
-                using (ApplyStyle(state.Output, RichTextBoxThemeStyle.TertiaryText, ref count))
+                using (ApplyStyle(state.Output, RichTextBoxThemeStyle.TertiaryText))
                 {
                     state.Output.Write(": ");
                 }
 
-                using (ApplyStyle(state.Output, RichTextBoxThemeStyle.String, ref count))
+                using (ApplyStyle(state.Output, RichTextBoxThemeStyle.String))
                 {
-                    var typeTag = SpecialCharsEscaping.Apply(structure.TypeTag, ref count);
-                    JsonValueFormatter.WriteQuotedJsonString(typeTag, state.Output);
+                    var typeTag = structure.TypeTag;
+                    state.Output.WriteCaptured(writer => JsonValueFormatter.WriteQuotedJsonString(typeTag, writer));
                 }
             }
 
-            using (ApplyStyle(state.Output, RichTextBoxThemeStyle.TertiaryText, ref count))
+            using (ApplyStyle(state.Output, RichTextBoxThemeStyle.TertiaryText))
             {
                 state.Output.Write('}');
             }
 
-            return count;
+            return 0;
         }
 
         protected override int VisitDictionaryValue(ThemedValueFormatterState state, DictionaryValue dictionary)
         {
-            var count = 0;
-
-            using (ApplyStyle(state.Output, RichTextBoxThemeStyle.TertiaryText, ref count))
+            using (ApplyStyle(state.Output, RichTextBoxThemeStyle.TertiaryText))
             {
                 state.Output.Write('{');
             }
@@ -182,7 +169,7 @@ namespace Serilog.Sinks.RichTextBox.Formatting
             {
                 if (delim.Length != 0)
                 {
-                    using (ApplyStyle(state.Output, RichTextBoxThemeStyle.TertiaryText, ref count))
+                    using (ApplyStyle(state.Output, RichTextBoxThemeStyle.TertiaryText))
                     {
                         state.Output.Write(delim);
                     }
@@ -196,52 +183,50 @@ namespace Serilog.Sinks.RichTextBox.Formatting
                         ? RichTextBoxThemeStyle.String
                         : RichTextBoxThemeStyle.Scalar;
 
-                using (ApplyStyle(state.Output, style, ref count))
+                using (ApplyStyle(state.Output, style))
                 {
-                    var escapedKey = SpecialCharsEscaping.Apply((element.Key.Value ?? "null").ToString(), ref count);
-                    JsonValueFormatter.WriteQuotedJsonString(escapedKey, state.Output);
+                    var key = (element.Key.Value ?? "null").ToString();
+                    state.Output.WriteCaptured(writer => JsonValueFormatter.WriteQuotedJsonString(key, writer));
                 }
 
-                using (ApplyStyle(state.Output, RichTextBoxThemeStyle.TertiaryText, ref count))
+                using (ApplyStyle(state.Output, RichTextBoxThemeStyle.TertiaryText))
                 {
                     state.Output.Write(": ");
                 }
 
-                count += Visit(state.Nest(), element.Value);
+                Visit(state.Nest(), element.Value);
             }
 
-            using (ApplyStyle(state.Output, RichTextBoxThemeStyle.TertiaryText, ref count))
+            using (ApplyStyle(state.Output, RichTextBoxThemeStyle.TertiaryText))
             {
                 state.Output.Write('}');
             }
 
-            return count;
+            return 0;
         }
 
-        private int FormatLiteralValue(ScalarValue scalar, TextWriter output)
+        private int FormatLiteralValue(ScalarValue scalar, RichTextLineWriter output)
         {
             var value = scalar.Value;
-            var count = 0;
 
             if (value is null)
             {
-                using (ApplyStyle(output, RichTextBoxThemeStyle.Null, ref count))
+                using (ApplyStyle(output, RichTextBoxThemeStyle.Null))
                 {
                     output.Write("null");
                 }
 
-                return count;
+                return 0;
             }
 
             if (value is string str)
             {
-                using (ApplyStyle(output, RichTextBoxThemeStyle.String, ref count))
+                using (ApplyStyle(output, RichTextBoxThemeStyle.String))
                 {
-                    var escapedValue = SpecialCharsEscaping.Apply(str, ref count);
-                    JsonValueFormatter.WriteQuotedJsonString(escapedValue, output);
+                    output.WriteCaptured(writer => JsonValueFormatter.WriteQuotedJsonString(str, writer));
                 }
 
-                return count;
+                return 0;
             }
 
             if (value is ValueType)
@@ -249,21 +234,22 @@ namespace Serilog.Sinks.RichTextBox.Formatting
                 if (value is int || value is uint || value is long || value is ulong || value is decimal ||
                     value is byte || value is sbyte || value is short || value is ushort)
                 {
-                    using (ApplyStyle(output, RichTextBoxThemeStyle.Number, ref count))
+                    using (ApplyStyle(output, RichTextBoxThemeStyle.Number))
                     {
                         output.Write(((IFormattable)value).ToString(null, CultureInfo.InvariantCulture));
                     }
 
-                    return count;
+                    return 0;
                 }
 
                 if (value is double d)
                 {
-                    using (ApplyStyle(output, RichTextBoxThemeStyle.Number, ref count))
+                    using (ApplyStyle(output, RichTextBoxThemeStyle.Number))
                     {
                         if (double.IsNaN(d) || double.IsInfinity(d))
                         {
-                            JsonValueFormatter.WriteQuotedJsonString(d.ToString(CultureInfo.InvariantCulture), output);
+                            var text = d.ToString(CultureInfo.InvariantCulture);
+                            output.WriteCaptured(writer => JsonValueFormatter.WriteQuotedJsonString(text, writer));
                         }
                         else
                         {
@@ -271,16 +257,17 @@ namespace Serilog.Sinks.RichTextBox.Formatting
                         }
                     }
 
-                    return count;
+                    return 0;
                 }
 
                 if (value is float f)
                 {
-                    using (ApplyStyle(output, RichTextBoxThemeStyle.Number, ref count))
+                    using (ApplyStyle(output, RichTextBoxThemeStyle.Number))
                     {
                         if (double.IsNaN(f) || double.IsInfinity(f))
                         {
-                            JsonValueFormatter.WriteQuotedJsonString(f.ToString(CultureInfo.InvariantCulture), output);
+                            var text = f.ToString(CultureInfo.InvariantCulture);
+                            output.WriteCaptured(writer => JsonValueFormatter.WriteQuotedJsonString(text, writer));
                         }
                         else
                         {
@@ -288,50 +275,50 @@ namespace Serilog.Sinks.RichTextBox.Formatting
                         }
                     }
 
-                    return count;
+                    return 0;
                 }
 
                 if (value is bool b)
                 {
-                    using (ApplyStyle(output, RichTextBoxThemeStyle.Boolean, ref count))
+                    using (ApplyStyle(output, RichTextBoxThemeStyle.Boolean))
                     {
                         output.Write(b ? "true" : "false");
                     }
 
-                    return count;
+                    return 0;
                 }
 
                 if (value is char ch)
                 {
-                    using (ApplyStyle(output, RichTextBoxThemeStyle.Scalar, ref count))
+                    using (ApplyStyle(output, RichTextBoxThemeStyle.Scalar))
                     {
-                        var charString = SpecialCharsEscaping.Apply(ch.ToString(), ref count);
-                        JsonValueFormatter.WriteQuotedJsonString(charString, output);
+                        var charString = ch.ToString();
+                        output.WriteCaptured(writer => JsonValueFormatter.WriteQuotedJsonString(charString, writer));
                     }
 
-                    return count;
+                    return 0;
                 }
 
                 if (value is DateTime || value is DateTimeOffset)
                 {
-                    using (ApplyStyle(output, RichTextBoxThemeStyle.Scalar, ref count))
+                    using (ApplyStyle(output, RichTextBoxThemeStyle.Scalar))
                     {
                         output.Write('\"');
                         output.Write(((IFormattable)value).ToString("O", CultureInfo.InvariantCulture));
                         output.Write('\"');
                     }
 
-                    return count;
+                    return 0;
                 }
             }
 
-            using (ApplyStyle(output, RichTextBoxThemeStyle.Scalar, ref count))
+            using (ApplyStyle(output, RichTextBoxThemeStyle.Scalar))
             {
-                var escapedValue = SpecialCharsEscaping.Apply(value.ToString(), ref count);
-                JsonValueFormatter.WriteQuotedJsonString(escapedValue, output);
+                var text = value.ToString();
+                output.WriteCaptured(writer => JsonValueFormatter.WriteQuotedJsonString(text, writer));
             }
 
-            return count;
+            return 0;
         }
     }
 }
