@@ -28,7 +28,7 @@ namespace Serilog.Sinks.RichTextBox.Output
         private readonly PropertyToken _token;
         private readonly ThemedMessageTemplateRenderer _renderer;
 
-        public MessageTemplateOutputTokenRenderer(RichTextBoxTheme theme, PropertyToken token, IFormatProvider formatProvider)
+        public MessageTemplateOutputTokenRenderer(RichTextBoxTheme theme, PropertyToken token, IFormatProvider? formatProvider)
         {
             if (theme is null)
             {

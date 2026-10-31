@@ -136,7 +136,7 @@ namespace Serilog.Sinks.RichTextBox.Wpf.Tests.Rendering
             return Render(null, messageTemplate, properties);
         }
 
-        private static string Render(IFormatProvider formatProvider, string messageTemplate, params object[] properties)
+        private static string Render(IFormatProvider? formatProvider, string messageTemplate, params object[] properties)
         {
             var binder = new LoggerConfiguration().CreateLogger();
             binder.BindMessageTemplate(messageTemplate, properties, out var mt, out var props);
@@ -146,7 +146,7 @@ namespace Serilog.Sinks.RichTextBox.Wpf.Tests.Rendering
             var renderer = new ThemedMessageTemplateRenderer(RichTextBoxTheme.None,
                 new ThemedDisplayValueFormatter(RichTextBoxTheme.None, formatProvider), false);
 
-            renderer.Render(mt, props.ToDictionary(p => p.Name, p => p.Value), writer);
+            renderer.Render(mt!, props!.ToDictionary(p => p.Name, p => p.Value), writer);
 
             return writer.ToString();
         }

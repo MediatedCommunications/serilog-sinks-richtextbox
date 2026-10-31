@@ -30,7 +30,7 @@ namespace Serilog.Sinks.RichTextBox.Output
         private readonly PropertyToken _token;
         private readonly ThemedValueFormatter _valueFormatter;
 
-        public PropertiesTokenRenderer(RichTextBoxTheme theme, PropertyToken token, MessageTemplate outputTemplate, IFormatProvider formatProvider)
+        public PropertiesTokenRenderer(RichTextBoxTheme theme, PropertyToken token, MessageTemplate outputTemplate, IFormatProvider? formatProvider)
         {
             _outputTemplate = outputTemplate;
             if (theme is null)

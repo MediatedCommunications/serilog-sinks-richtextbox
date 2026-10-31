@@ -32,7 +32,7 @@ namespace Serilog.Sinks.RichTextBox.Rendering
             _text.Append(value);
         }
 
-        public void Write(string value)
+        public void Write(string? value)
         {
             if (value != null)
             {
@@ -194,7 +194,7 @@ namespace Serilog.Sinks.RichTextBox.Rendering
                 _buffer.Append(value);
             }
 
-            public override void Write(string value)
+            public override void Write(string? value)
             {
                 if (value != null)
                 {

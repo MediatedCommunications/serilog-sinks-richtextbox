@@ -22,7 +22,7 @@ using System.Windows;
 using Serilog;
 using Serilog.Debugging;
 
-namespace WpfNet50Sample
+namespace WpfSample
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml

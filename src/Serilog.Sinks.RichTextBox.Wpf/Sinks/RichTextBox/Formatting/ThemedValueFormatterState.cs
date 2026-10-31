@@ -21,7 +21,7 @@ namespace Serilog.Sinks.RichTextBox.Formatting
     internal struct ThemedValueFormatterState
     {
         public RichTextLineWriter Output;
-        public string Format;
+        public string? Format;
         public bool IsTopLevel;
 
         public ThemedValueFormatterState Nest() => new ThemedValueFormatterState { Output = Output };

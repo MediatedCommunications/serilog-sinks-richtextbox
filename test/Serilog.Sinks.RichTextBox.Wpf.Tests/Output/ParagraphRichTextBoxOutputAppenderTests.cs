@@ -107,7 +107,7 @@ namespace Serilog.Sinks.RichTextBox.Wpf.Tests.Output
 
         private static void RunSta(Action action)
         {
-            Exception caught = null;
+            Exception? caught = null;
             var thread = new Thread(() =>
             {
                 try

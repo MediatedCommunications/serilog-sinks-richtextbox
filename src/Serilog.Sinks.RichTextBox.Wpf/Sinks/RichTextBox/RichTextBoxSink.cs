@@ -71,7 +71,7 @@ namespace Serilog.Sinks.RichTextBox
 
         private async Task ProcessMessages()
         {
-            List<RichTextLine> pending = null;
+            List<RichTextLine>? pending = null;
             var announcedFailure = false;
             try
             {
@@ -99,9 +99,10 @@ namespace Serilog.Sinks.RichTextBox
                         pending = batch;
                     }
 
+                    var batchToWrite = pending;
                     try
                     {
-                        await _richTextBox.WriteAsync(pending).ConfigureAwait(false);
+                        await _richTextBox.WriteAsync(batchToWrite).ConfigureAwait(false);
                         pending = null;
                         announcedFailure = false;
                     }
@@ -115,7 +116,7 @@ namespace Serilog.Sinks.RichTextBox
 
                         if (_shutdown.IsCancellationRequested)
                         {
-                            SelfLog.WriteLine("RichTextBox sink dropped " + pending.Count + " lines during shutdown.");
+                            SelfLog.WriteLine("RichTextBox sink dropped " + batchToWrite.Count + " lines during shutdown.");
                             break;
                         }
 
@@ -125,7 +126,7 @@ namespace Serilog.Sinks.RichTextBox
                         }
                         catch (OperationCanceledException)
                         {
-                            SelfLog.WriteLine("RichTextBox sink dropped " + pending.Count + " lines during shutdown.");
+                            SelfLog.WriteLine("RichTextBox sink dropped " + batchToWrite.Count + " lines during shutdown.");
                             break;
                         }
                     }

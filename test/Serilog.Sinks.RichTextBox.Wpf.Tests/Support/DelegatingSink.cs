@@ -36,7 +36,7 @@ namespace Serilog.Sinks.RichTextBox.Wpf.Tests.Support
 
         public static LogEvent GetLogEvent(Action<ILogger> writeAction)
         {
-            LogEvent result = null;
+            LogEvent? result = null;
 
             var logger = new LoggerConfiguration()
                 .MinimumLevel.Verbose()
@@ -45,7 +45,7 @@ namespace Serilog.Sinks.RichTextBox.Wpf.Tests.Support
 
             writeAction(logger);
 
-            return result;
+            return result ?? throw new InvalidOperationException("The write action did not emit a log event.");
         }
     }
 }

@@ -32,7 +32,7 @@ namespace Serilog.Sinks.RichTextBox.Wpf.Tests.Sinks
         public void NullRichTextBoxThrows()
         {
             var exception = Assert.Throws<ArgumentNullException>(() =>
-                new LoggerConfiguration().WriteTo.RichTextBox((System.Windows.Controls.RichTextBox)null));
+                new LoggerConfiguration().WriteTo.RichTextBox((System.Windows.Controls.RichTextBox)null!));
 
             Assert.AreEqual("richTextBoxControl", exception.ParamName);
         }

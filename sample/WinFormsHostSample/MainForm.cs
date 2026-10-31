@@ -11,7 +11,7 @@ using System.Windows.Media;
 using Serilog;
 using Serilog.Debugging;
 
-namespace WinFormsHostNet50Sample
+namespace WinFormsHostSample
 {
     public partial class MainForm : Form
     {
@@ -66,7 +66,7 @@ namespace WinFormsHostNet50Sample
                 .CreateLogger();
         }
 
-        private void MainForm_Load(object sender, EventArgs e)
+        private void MainForm_Load(object? sender, EventArgs e)
         {
             Log.Debug("Getting started");
 
@@ -90,7 +90,7 @@ namespace WinFormsHostNet50Sample
             throw new DivideByZeroException();
         }
 
-        private void Clear_OnClick(object sender, EventArgs e)
+        private void Clear_OnClick(object? sender, EventArgs e)
         {
             lock (_syncRoot)
             {
@@ -98,37 +98,37 @@ namespace WinFormsHostNet50Sample
             }
         }
 
-        private void LogVerbose_OnClick(object sender, EventArgs e)
+        private void LogVerbose_OnClick(object? sender, EventArgs e)
         {
             Log.Verbose("Hello! Now => {Now}", DateTime.Now);
         }
 
-        private void LogDebug_OnClick(object sender, EventArgs e)
+        private void LogDebug_OnClick(object? sender, EventArgs e)
         {
             Log.Debug("Hello! Now => {Now}", DateTime.Now);
         }
 
-        private void LogInformation_OnClick(object sender, EventArgs e)
+        private void LogInformation_OnClick(object? sender, EventArgs e)
         {
             Log.Information("Hello! Now => {Now}", DateTime.Now);
         }
 
-        private void LogWarning_OnClick(object sender, EventArgs e)
+        private void LogWarning_OnClick(object? sender, EventArgs e)
         {
             Log.Warning("Hello! Now => {Now}", DateTime.Now);
         }
 
-        private void LogError_OnClick(object sender, EventArgs e)
+        private void LogError_OnClick(object? sender, EventArgs e)
         {
             Log.Error("Hello! Now => {Now}", DateTime.Now);
         }
 
-        private void LogFatal_OnClick(object sender, EventArgs e)
+        private void LogFatal_OnClick(object? sender, EventArgs e)
         {
             Log.Fatal("Hello! Now => {Now}", DateTime.Now);
         }
 
-        private void LogParallelFor_OnClick(object sender, EventArgs e)
+        private void LogParallelFor_OnClick(object? sender, EventArgs e)
         {
             Parallel.For(1, 101, stepNumber =>
             {
@@ -143,7 +143,7 @@ namespace WinFormsHostNet50Sample
             });
         }
 
-        private async void LogTaskRun_OnClick(object sender, EventArgs e)
+        private async void LogTaskRun_OnClick(object? sender, EventArgs e)
         {
             var tasks = new System.Collections.Generic.List<Task>();
 

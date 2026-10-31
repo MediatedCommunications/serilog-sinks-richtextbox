@@ -64,11 +64,11 @@ namespace Serilog
             RichTextBox richTextBoxControl,
             LogEventLevel restrictedToMinimumLevel = LevelAlias.Minimum,
             string outputTemplate = _defaultRichTextBoxOutputTemplate,
-            IFormatProvider formatProvider = null,
-            LoggingLevelSwitch levelSwitch = null,
-            RichTextBoxTheme theme = null,
+            IFormatProvider? formatProvider = null,
+            LoggingLevelSwitch? levelSwitch = null,
+            RichTextBoxTheme? theme = null,
             DispatcherPriority dispatcherPriority = DispatcherPriority.Background,
-            object syncRoot = null)
+            object? syncRoot = null)
         {
             if (richTextBoxControl is null)
             {
@@ -114,11 +114,11 @@ namespace Serilog
             IRichTextBoxOutputAppender outputAppender,
             LogEventLevel restrictedToMinimumLevel = LevelAlias.Minimum,
             string outputTemplate = _defaultRichTextBoxOutputTemplate,
-            IFormatProvider formatProvider = null,
-            LoggingLevelSwitch levelSwitch = null,
-            RichTextBoxTheme theme = null,
+            IFormatProvider? formatProvider = null,
+            LoggingLevelSwitch? levelSwitch = null,
+            RichTextBoxTheme? theme = null,
             DispatcherPriority dispatcherPriority = DispatcherPriority.Background,
-            object syncRoot = null)
+            object? syncRoot = null)
         {
             if (document is null)
             {
@@ -156,11 +156,11 @@ namespace Serilog
             IRichTextBoxOutputAppender outputAppender,
             LogEventLevel restrictedToMinimumLevel = LevelAlias.Minimum,
             string outputTemplate = _defaultRichTextBoxOutputTemplate,
-            IFormatProvider formatProvider = null,
-            LoggingLevelSwitch levelSwitch = null,
-            RichTextBoxTheme theme = null,
+            IFormatProvider? formatProvider = null,
+            LoggingLevelSwitch? levelSwitch = null,
+            RichTextBoxTheme? theme = null,
             DispatcherPriority dispatcherPriority = DispatcherPriority.Background,
-            object syncRoot = null)
+            object? syncRoot = null)
         {
             if (sinkConfiguration is null)
             {
@@ -218,9 +218,9 @@ namespace Serilog
             IRichTextBox richTextBox,
             LogEventLevel restrictedToMinimumLevel = LevelAlias.Minimum,
             string outputTemplate = _defaultRichTextBoxOutputTemplate,
-            IFormatProvider formatProvider = null,
-            LoggingLevelSwitch levelSwitch = null,
-            RichTextBoxTheme theme = null)
+            IFormatProvider? formatProvider = null,
+            LoggingLevelSwitch? levelSwitch = null,
+            RichTextBoxTheme? theme = null)
         {
             if (sinkConfiguration is null)
             {

@@ -36,7 +36,7 @@ namespace Serilog.Sinks.RichTextBox.Formatting
             return _theme.Apply(output, style);
         }
 
-        public void Format(LogEventPropertyValue value, RichTextLineWriter output, string format, bool literalTopLevel = false)
+        public void Format(LogEventPropertyValue value, RichTextLineWriter output, string? format, bool literalTopLevel = false)
         {
             Visit(new ThemedValueFormatterState { Output = output, Format = format, IsTopLevel = literalTopLevel }, value);
         }

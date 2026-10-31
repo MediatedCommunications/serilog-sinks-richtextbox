@@ -57,7 +57,7 @@ namespace Serilog.Sinks.RichTextBox.Output
             ["F", "FA", "FTL", "FATL"],
         ];
 
-        public static string GetLevelMoniker(LogEventLevel value, string format = null)
+        public static string GetLevelMoniker(LogEventLevel value, string? format = null)
         {
             if (format is null || format.Length != 2 && format.Length != 3)
             {

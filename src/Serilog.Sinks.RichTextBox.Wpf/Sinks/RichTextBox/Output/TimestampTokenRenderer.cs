@@ -26,9 +26,9 @@ namespace Serilog.Sinks.RichTextBox.Output
     {
         private readonly RichTextBoxTheme _theme;
         private readonly PropertyToken _token;
-        private readonly IFormatProvider _formatProvider;
+        private readonly IFormatProvider? _formatProvider;
 
-        public TimestampTokenRenderer(RichTextBoxTheme theme, PropertyToken token, IFormatProvider formatProvider)
+        public TimestampTokenRenderer(RichTextBoxTheme theme, PropertyToken token, IFormatProvider? formatProvider)
         {
             _theme = theme;
             _token = token;

@@ -1,7 +1,7 @@
 using System;
 using System.Windows.Forms;
 
-namespace WinFormsHostNet50Sample
+namespace WinFormsHostSample
 {
     public static class Program
     {

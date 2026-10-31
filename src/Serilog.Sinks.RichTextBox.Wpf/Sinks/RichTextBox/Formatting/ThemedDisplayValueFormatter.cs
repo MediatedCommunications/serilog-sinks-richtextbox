@@ -25,9 +25,9 @@ namespace Serilog.Sinks.RichTextBox.Formatting
 {
     internal class ThemedDisplayValueFormatter : ThemedValueFormatter
     {
-        private readonly IFormatProvider _formatProvider;
+        private readonly IFormatProvider? _formatProvider;
 
-        public ThemedDisplayValueFormatter(RichTextBoxTheme theme, IFormatProvider formatProvider)
+        public ThemedDisplayValueFormatter(RichTextBoxTheme theme, IFormatProvider? formatProvider)
             : base(theme)
         {
             _formatProvider = formatProvider;
@@ -181,7 +181,7 @@ namespace Serilog.Sinks.RichTextBox.Formatting
             return 0;
         }
 
-        public int FormatLiteralValue(ScalarValue scalar, RichTextLineWriter output, string format)
+        public int FormatLiteralValue(ScalarValue scalar, RichTextLineWriter output, string? format)
         {
             var value = scalar.Value;
 

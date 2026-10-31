@@ -10,9 +10,9 @@
 <h1 align="center">Serilog.Sinks.RichTextBox.Wpf</h1>
 <div align="center">
 
-A [Serilog](https://serilog.net) sink that writes log events to any WPF [RichTextBox](https://docs.microsoft.com/en-us/dotnet/desktop/wpf/controls/richtextbox-overview?view=netframeworkdesktop-4.8) control with coloring and custom theme support.
+A [Serilog](https://serilog.net) sink that writes log events to any WPF [RichTextBox](https://learn.microsoft.com/dotnet/desktop/wpf/controls/richtextbox) control with coloring and custom theme support. The package targets .NET Framework 4.8 and .NET 10.
 
-[![NuGet Version](http://img.shields.io/nuget/v/Serilog.Sinks.RichTextBox.Wpf.svg?style=flat)](https://www.nuget.org/packages/Serilog.Sinks.RichTextBox.Wpf) [![.NET](https://img.shields.io/badge/.NET%20-%3E%3D%205.0-512bd4)](https://dotnet.microsoft.com/download) [![.NET Core](https://img.shields.io/badge/.NET%20Core-%3E%3D%203.1-512bd4)](https://dotnet.microsoft.com/download) [![.NET Framework](https://img.shields.io/badge/.NET%20Framework-%3E%3D%204.6.2-512bd4)](https://dotnet.microsoft.com/download) [![Stack Overflow](https://img.shields.io/badge/stack%20overflow-serilog-orange.svg)](http://stackoverflow.com/questions/tagged/serilog)
+[![NuGet Version](http://img.shields.io/nuget/v/Serilog.Sinks.RichTextBox.Wpf.svg?style=flat)](https://www.nuget.org/packages/Serilog.Sinks.RichTextBox.Wpf) [![.NET](https://img.shields.io/badge/.NET%20-%3E%3D%2010.0-512bd4)](https://dotnet.microsoft.com/download) [![.NET Framework](https://img.shields.io/badge/.NET%20Framework-%3E%3D%204.8-512bd4)](https://dotnet.microsoft.com/download/dotnet-framework) [![Stack Overflow](https://img.shields.io/badge/stack%20overflow-serilog-orange.svg)](http://stackoverflow.com/questions/tagged/serilog)
 
 ![Screenshot of Serilog.Sinks.RichTextBox.Wpf in action](asset/serilog-sinks-richtextbox-screenshot.png)
 
@@ -27,10 +27,10 @@ If you like or are using this project please give it a star. Thanks!
 Install the [Serilog.Sinks.RichTextBox.Wpf](https://www.nuget.org/packages/Serilog.Sinks.RichTextBox.Wpf) package from NuGet:
 
 ```powershell
-Install-Package Serilog.Sinks.RichTextBox.Wpf -Prerelease
+Install-Package Serilog.Sinks.RichTextBox.Wpf
 ```
 
-Declare your [RichTextBox](https://docs.microsoft.com/en-us/dotnet/desktop/wpf/controls/richtextbox-overview?view=netframeworkdesktop-4.8) control and give it a name that you can reference it from the code-behind. e.g.:
+Declare your [RichTextBox](https://learn.microsoft.com/dotnet/desktop/wpf/controls/richtextbox) control and give it a name that you can reference it from the code-behind. e.g.:
 
 ```xml
 <Window (...)>

@@ -26,9 +26,9 @@ namespace Serilog.Sinks.RichTextBox.Formatting
     internal class ThemedJsonValueFormatter : ThemedValueFormatter
     {
         private readonly ThemedDisplayValueFormatter _displayFormatter;
-        private readonly IFormatProvider _formatProvider;
+        private readonly IFormatProvider? _formatProvider;
 
-        public ThemedJsonValueFormatter(RichTextBoxTheme theme, IFormatProvider formatProvider)
+        public ThemedJsonValueFormatter(RichTextBoxTheme theme, IFormatProvider? formatProvider)
             : base(theme)
         {
             _displayFormatter = new ThemedDisplayValueFormatter(theme, formatProvider);
@@ -185,7 +185,7 @@ namespace Serilog.Sinks.RichTextBox.Formatting
 
                 using (ApplyStyle(state.Output, style))
                 {
-                    var key = (element.Key.Value ?? "null").ToString();
+                    var key = (element.Key.Value ?? "null").ToString() ?? string.Empty;
                     state.Output.WriteCaptured(writer => JsonValueFormatter.WriteQuotedJsonString(key, writer));
                 }
 
@@ -314,7 +314,7 @@ namespace Serilog.Sinks.RichTextBox.Formatting
 
             using (ApplyStyle(output, RichTextBoxThemeStyle.Scalar))
             {
-                var text = value.ToString();
+                var text = value.ToString() ?? string.Empty;
                 output.WriteCaptured(writer => JsonValueFormatter.WriteQuotedJsonString(text, writer));
             }
 

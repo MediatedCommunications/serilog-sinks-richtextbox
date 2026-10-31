@@ -28,7 +28,7 @@ namespace Serilog.Sinks.RichTextBox.Output
     {
         private readonly OutputTemplateTokenRenderer[] _renderers;
 
-        public RichTextOutputTemplateRenderer(RichTextBoxTheme theme, string outputTemplate, IFormatProvider formatProvider)
+        public RichTextOutputTemplateRenderer(RichTextBoxTheme theme, string outputTemplate, IFormatProvider? formatProvider)
         {
             if (outputTemplate is null)
             {

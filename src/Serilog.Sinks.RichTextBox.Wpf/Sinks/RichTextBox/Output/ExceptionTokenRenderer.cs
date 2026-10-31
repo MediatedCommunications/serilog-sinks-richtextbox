@@ -49,8 +49,8 @@ namespace Serilog.Sinks.RichTextBox.Output
 
             var lines = new StringReader(logContent);
 
-            string pending = null;
-            string nextLine;
+            string? pending = null;
+            string? nextLine;
             while ((nextLine = lines.ReadLine()) != null)
             {
                 if (pending != null)

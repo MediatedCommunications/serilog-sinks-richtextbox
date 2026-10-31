@@ -201,12 +201,12 @@ namespace Serilog.Sinks.RichTextBox.Wpf.Tests.Output
                 _innerFormatProvider = innerFormatProvider;
             }
 
-            public object GetFormat(Type formatType)
+            public object? GetFormat(Type? formatType)
             {
                 return formatType == typeof(ICustomFormatter) ? this : _innerFormatProvider.GetFormat(formatType);
             }
 
-            public string Format(string format, object arg, IFormatProvider formatProvider)
+            public string Format(string? format, object? arg, IFormatProvider? formatProvider)
             {
                 if (arg is Size size)
                 {
@@ -215,10 +215,10 @@ namespace Serilog.Sinks.RichTextBox.Wpf.Tests.Output
 
                 if (arg is IFormattable formattable)
                 {
-                    return formattable.ToString(format, _innerFormatProvider);
+                    return formattable.ToString(format, _innerFormatProvider) ?? string.Empty;
                 }
 
-                return arg.ToString();
+                return arg?.ToString() ?? string.Empty;
             }
         }
 

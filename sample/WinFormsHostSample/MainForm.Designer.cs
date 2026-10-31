@@ -1,5 +1,5 @@
 ﻿
-namespace WinFormsHostNet50Sample
+namespace WinFormsHostSample
 {
     partial class MainForm
     {
@@ -177,7 +177,7 @@ namespace WinFormsHostNet50Sample
             this.Controls.Add(this._toolStrip1);
             this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "MainForm (Windows Forms hosting WPF\'s RichTextBox on .NET 5)";
+            this.Text = "MainForm (Windows Forms hosting WPF\'s RichTextBox)";
             this.Load += new System.EventHandler(this.MainForm_Load);
             this._toolStrip1.ResumeLayout(false);
             this._toolStrip1.PerformLayout();

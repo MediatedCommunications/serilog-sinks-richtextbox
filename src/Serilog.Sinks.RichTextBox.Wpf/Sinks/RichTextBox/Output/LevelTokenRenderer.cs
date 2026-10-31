@@ -37,11 +37,6 @@ namespace Serilog.Sinks.RichTextBox.Output
             { LogEventLevel.Fatal, RichTextBoxThemeStyle.LevelFatal },
         };
 
-        // ReSharper disable once UnusedMember.Global
-        protected LevelTokenRenderer()
-        {
-        }
-
         public LevelTokenRenderer(RichTextBoxTheme theme, PropertyToken levelToken)
         {
             _theme = theme;

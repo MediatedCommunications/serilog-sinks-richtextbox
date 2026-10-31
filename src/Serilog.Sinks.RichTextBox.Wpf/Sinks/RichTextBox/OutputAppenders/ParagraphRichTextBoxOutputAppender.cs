@@ -6,11 +6,14 @@ using Serilog.Sinks.RichTextBox.Rendering;
 
 namespace Serilog.Sinks.RichTextBox.Output
 {
-    public class ParagraphRichTextBoxOutputAppender : RichTextBoxOutputAppenderBase<ParagraphRichTextBoxOutputAppenderArgs>
+    public class ParagraphRichTextBoxOutputAppender : RichTextBoxOutputAppenderBase
     {
-        public ParagraphRichTextBoxOutputAppender(ParagraphRichTextBoxOutputAppenderArgs args) : base(args)
+        public ParagraphRichTextBoxOutputAppender(ParagraphRichTextBoxOutputAppenderArgs args)
         {
+            Args = args;
         }
+
+        protected ParagraphRichTextBoxOutputAppenderArgs Args { get; }
 
         private static readonly object _placeholderSentinel = new();
 
@@ -48,7 +51,7 @@ namespace Serilog.Sinks.RichTextBox.Output
             }
         }
 
-        protected override void Append(System.Windows.Controls.RichTextBox richTextBox, FlowDocument document, List<Paragraph> paragraphs)
+        protected override void Append(System.Windows.Controls.RichTextBox? richTextBox, FlowDocument document, List<Paragraph> paragraphs)
         {
             StripTrailingNewlines(paragraphs);
 
@@ -71,7 +74,7 @@ namespace Serilog.Sinks.RichTextBox.Output
             }
             finally
             {
-                if (started)
+                if (started && richTextBox != null)
                 {
                     richTextBox.EndChange();
                 }
@@ -177,7 +180,7 @@ namespace Serilog.Sinks.RichTextBox.Output
                 richTextBox.UpdateLayout();
                 if (richTextBox.ViewportHeight == 0 && richTextBox.ExtentHeight == 0)
                 {
-                    EventHandler onLayout = null;
+                    EventHandler? onLayout = null;
                     onLayout = (_, _) =>
                     {
                         if (richTextBox.ViewportHeight == 0 && richTextBox.ExtentHeight == 0)
@@ -239,7 +242,7 @@ namespace Serilog.Sinks.RichTextBox.Output
             }
         }
 
-        private static Block BlockAt(FlowDocument document, int index)
+        private static Block? BlockAt(FlowDocument document, int index)
         {
             var block = document.Blocks.FirstBlock;
             for (var i = 0; i < index && block != null; i++)

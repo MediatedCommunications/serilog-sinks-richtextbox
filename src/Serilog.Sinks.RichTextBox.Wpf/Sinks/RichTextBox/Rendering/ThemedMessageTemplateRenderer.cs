@@ -82,7 +82,7 @@ namespace Serilog.Sinks.RichTextBox.Rendering
             output.WriteAligned(valueOutput.DetachFragments(), pt.Alignment);
         }
 
-        private void RenderValue(RichTextBoxTheme theme, ThemedValueFormatter valueFormatter, LogEventPropertyValue propertyValue, RichTextLineWriter output, string format)
+        private void RenderValue(RichTextBoxTheme theme, ThemedValueFormatter valueFormatter, LogEventPropertyValue propertyValue, RichTextLineWriter output, string? format)
         {
             if (_isLiteral && propertyValue is ScalarValue { Value: string } sv)
             {

@@ -9,7 +9,7 @@ namespace Serilog.Sinks.RichTextBox.Output
 {
     internal static class WpfExtensions
     {
-        public static T FindLogicalAncestor<T>(this DependencyObject start) where T : DependencyObject
+        public static T? FindLogicalAncestor<T>(this DependencyObject start) where T : DependencyObject
         {
             DependencyObject current = start;
             while (current != null)
