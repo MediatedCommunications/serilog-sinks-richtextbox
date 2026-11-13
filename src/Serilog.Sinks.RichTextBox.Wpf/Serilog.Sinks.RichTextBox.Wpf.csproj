@@ -60,7 +60,7 @@
 
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.403" PrivateAssets="All" />
 
-    <PackageReference Include="System.Threading.Channels" Version="10.0.14" />
+    <PackageReference Include="System.Threading.Channels" Version="10.0.15" />
   </ItemGroup>
 
   <ItemGroup>
